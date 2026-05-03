@@ -27,8 +27,8 @@ export function PrimaryButton({ label, icon, onPress, disabled, variant = "solid
       style={({ pressed }) => [
         styles.base,
         solid ? styles.solid : styles.outline,
-        disabled ? styles.disabled : null,
-        pressed && !disabled ? styles.pressed : null,
+        disabled ? (solid ? styles.disabledSolid : styles.disabledOutline) : null,
+        pressed && !disabled ? (solid ? styles.pressedSolid : styles.pressedOutline) : null,
       ]}
     >
       {icon ? <Ionicons name={icon} size={14} color={fg} /> : null}
@@ -40,20 +40,20 @@ export function PrimaryButton({ label, icon, onPress, disabled, variant = "solid
 const styles = StyleSheet.create({
   base: {
     width: "100%",
-    minHeight: 56,
+    minHeight: 58,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
     paddingHorizontal: 16,
     paddingVertical: 16,
+    borderWidth: 1,
+    borderColor: tokens.accent,
   } satisfies ViewStyle,
   solid: {
     backgroundColor: tokens.accent,
   },
   outline: {
-    borderWidth: 1,
-    borderColor: tokens.accent,
     backgroundColor: "transparent",
   },
   label: {
@@ -61,10 +61,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 1.2,
   },
-  disabled: {
-    opacity: 0.4,
+  disabledSolid: {
+    backgroundColor: tokens.accentDim,
+    borderColor: tokens.accentDim,
   },
-  pressed: {
-    opacity: 0.85,
+  disabledOutline: {
+    borderColor: tokens.accentDim,
+    opacity: 0.65,
+  },
+  pressedSolid: {
+    backgroundColor: tokens.accentGlow,
+  },
+  pressedOutline: {
+    backgroundColor: "rgba(245, 200, 66, 0.08)",
   },
 });

@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,10 +14,10 @@ import { AppHeader } from "@/components/app-header";
 import { LoadingView } from "@/components/loading-view";
 import { MarketSentimentCard } from "@/components/market-sentiment-card";
 import { NeuralEngineCard } from "@/components/neural-engine-card";
-import { PrimaryButton } from "@/components/primary-button";
 import { SectionCard } from "@/components/section-card";
 import { TerminalLogs } from "@/components/terminal-logs";
 import { tokens } from "@/constants/theme";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ValidateScreen() {
   const [concept, setConcept] = useState("");
@@ -24,6 +25,11 @@ export default function ValidateScreen() {
   const [loading, setLoading] = useState(false);
 
   const canSubmit = concept.trim().length > 0 && background.trim().length > 0;
+
+  const handleStressTestPress = () => {
+    if (!canSubmit) return;
+    setLoading(true);
+  };
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -76,12 +82,19 @@ export default function ValidateScreen() {
                 minHeight={110}
               />
 
-              <PrimaryButton
-                label="STRESS TEST THIS"
-                icon="flash"
-                disabled={!canSubmit}
-                onPress={() => setLoading(true)}
-              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="STRESS TEST THIS"
+                onPress={handleStressTestPress}
+                style={styles.ctaPressable}
+              >
+                {({ pressed }) => (
+                  <View style={[styles.ctaButton, pressed ? styles.ctaButtonPressed : null]}>
+                    <Ionicons name="flash" size={16} color={tokens.bg} />
+                    <Text style={styles.ctaLabel}>STRESS TEST THIS</Text>
+                  </View>
+                )}
+              </Pressable>
 
               <MarketSentimentCard />
 
@@ -138,5 +151,31 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_400Regular",
     fontSize: 14,
     lineHeight: 20,
+  },
+  ctaPressable: {
+    width: "100%",
+  },
+  ctaButton: {
+    minHeight: 58,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    borderWidth: 1,
+    borderColor: tokens.accent,
+    backgroundColor: tokens.accent,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  ctaButtonPressed: {
+    backgroundColor: tokens.accentGlow,
+    borderColor: tokens.accentGlow,
+  },
+  ctaLabel: {
+    marginLeft: 10,
+    color: tokens.bg,
+    fontFamily: "Inter_700Bold",
+    fontSize: 12,
+    letterSpacing: 0.8,
   },
 });
