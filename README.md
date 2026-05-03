@@ -6,7 +6,7 @@ Mobile app where you submit a project idea and get back a brutally honest, struc
 - Expo (React Native) + TypeScript + Expo Router 6 (new architecture)
 - NativeWind v4 + Tailwind v3 — see `tailwind.config.js` for design tokens
 - Supabase (Postgres + Edge Functions) — added in stage 4
-- Anthropic Claude `sonnet-4-6` with web search + prompt caching — added in stage 5
+- Anthropic Claude Sonnet 4 with web search + prompt caching — current Edge Function snapshot: `claude-sonnet-4-20250514`
 
 ## Develop
 

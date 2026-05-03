@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
   },
   pressedSolid: {
     backgroundColor: tokens.accentGlow,
+    borderColor: tokens.accentGlow,
   },
   pressedOutline: {
     backgroundColor: "rgba(245, 200, 66, 0.08)",

@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { customAlphabet } from "npm:nanoid@5";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -12,6 +13,8 @@ const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_VERSION = "2023-06-01";
 const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
 const MAX_TOKENS = 4096;
+const generateSlug = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 8);
+const MAX_SLUG_ATTEMPTS = 3;
 
 const SYSTEM_PROMPT = `You are "Should I Build This?", a brutally honest senior engineer + product thinker.
 
@@ -228,6 +231,8 @@ Deno.serve(async (req) => {
     );
   }
 
+  parsed = normalizeAnalysisPayload(parsed);
+
   const validationError = validateAnalysisPayload(parsed);
   if (validationError) {
     return jsonResponse(
@@ -240,7 +245,6 @@ Deno.serve(async (req) => {
   }
 
   const analysis = parsed as AnalysisPayload;
-  const slug = generateSlug();
 
   const authHeader = req.headers.get("Authorization");
   let userId: string | null = null;
@@ -252,7 +256,6 @@ Deno.serve(async (req) => {
   }
 
   const insertPayload = {
-    slug,
     idea_text: ideaText,
     background_text: backgroundText || null,
     builder_view: analysis.builder_view,
@@ -261,19 +264,19 @@ Deno.serve(async (req) => {
     user_id: userId,
   };
 
-  const { error: insertError } = await supabase.from("reports").insert(insertPayload);
-  if (insertError) {
+  const insertResult = await insertReportWithUniqueSlug(supabase, insertPayload);
+  if (insertResult.error) {
     return jsonResponse(
       {
         error: "Failed to save report.",
-        detail: insertError.message,
+        detail: insertResult.error,
       },
       500,
     );
   }
 
   return jsonResponse({
-    slug,
+    slug: insertResult.slug,
     report: analysis,
     model: ANTHROPIC_MODEL,
   });
@@ -298,6 +301,24 @@ function extractTextFromAnthropicResponse(payload: any): string {
 
 function stripJsonFences(input: string): string {
   return input.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+}
+
+function normalizeAnalysisPayload(payload: unknown): unknown {
+  if (!payload || typeof payload !== "object") return payload;
+
+  const value = payload as Record<string, unknown>;
+  const investor = value.investor_view;
+  if (!investor || typeof investor !== "object") return payload;
+
+  const market = (investor as Record<string, unknown>).market_size_assessment;
+  if (!market || typeof market !== "object") return payload;
+
+  const marketValue = market as Record<string, unknown>;
+  if (typeof marketValue.target_sector !== "string" || marketValue.target_sector.trim().length === 0) {
+    marketValue.target_sector = "Unclear target sector";
+  }
+
+  return payload;
 }
 
 function validateAnalysisPayload(payload: unknown): string | null {
@@ -377,10 +398,43 @@ function truncate(value: string, max: number): string {
   return value.length <= max ? value : `${value.slice(0, max)}...`;
 }
 
-function generateSlug(length = 8): string {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  const bytes = crypto.getRandomValues(new Uint8Array(length));
-  return Array.from(bytes, (byte) => chars[byte % chars.length]).join("");
+async function insertReportWithUniqueSlug(
+  supabase: ReturnType<typeof createClient>,
+  payload: Omit<{
+    slug: string;
+    idea_text: string;
+    background_text: string | null;
+    builder_view: AnalysisPayload["builder_view"];
+    investor_view: AnalysisPayload["investor_view"];
+    model: string;
+    user_id: string | null;
+  }, "slug">,
+): Promise<{ slug: string | null; error: string | null }> {
+  for (let attempt = 0; attempt < MAX_SLUG_ATTEMPTS; attempt += 1) {
+    const slug = generateSlug();
+    const { error } = await supabase.from("reports").insert({
+      slug,
+      ...payload,
+    });
+
+    if (!error) {
+      return { slug, error: null };
+    }
+
+    if (!isSlugCollision(error)) {
+      return { slug: null, error: error.message };
+    }
+  }
+
+  return {
+    slug: null,
+    error: "Failed to generate a unique report slug after multiple attempts.",
+  };
+}
+
+function isSlugCollision(error: { code?: string; message: string; details?: string | null }): boolean {
+  return error.code === "23505"
+    && (error.message.includes("reports_slug_key") || error.details?.includes("(slug)") === true);
 }
 
 function jsonResponse(body: unknown, status = 200): Response {

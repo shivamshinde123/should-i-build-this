@@ -85,11 +85,19 @@ export default function ValidateScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="STRESS TEST THIS"
+                accessibilityState={{ disabled: !canSubmit }}
+                disabled={!canSubmit}
                 onPress={handleStressTestPress}
                 style={styles.ctaPressable}
               >
                 {({ pressed }) => (
-                  <View style={[styles.ctaButton, pressed ? styles.ctaButtonPressed : null]}>
+                  <View
+                    style={[
+                      styles.ctaButton,
+                      !canSubmit ? styles.ctaButtonDisabled : null,
+                      pressed ? styles.ctaButtonPressed : null,
+                    ]}
+                  >
                     <Ionicons name="flash" size={16} color={tokens.bg} />
                     <Text style={styles.ctaLabel}>STRESS TEST THIS</Text>
                   </View>
@@ -170,6 +178,10 @@ const styles = StyleSheet.create({
   ctaButtonPressed: {
     backgroundColor: tokens.accentGlow,
     borderColor: tokens.accentGlow,
+  },
+  ctaButtonDisabled: {
+    backgroundColor: "rgba(245, 200, 66, 0.72)",
+    borderColor: "rgba(245, 200, 66, 0.72)",
   },
   ctaLabel: {
     marginLeft: 10,
