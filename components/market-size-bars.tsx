@@ -1,4 +1,6 @@
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+
+import { tokens } from "@/constants/theme";
 
 export type MarketBar = {
   label: string;
@@ -8,28 +10,53 @@ export type MarketBar = {
 
 export function MarketSizeBars({ bars }: { bars: MarketBar[] }) {
   return (
-    <View className="gap-3">
+    <View style={styles.container}>
       {bars.map((bar) => (
         <View key={bar.label}>
-          <View className="mb-1 flex-row items-center justify-between">
-            <Text
-              className="flex-1 font-mono text-[9px] tracking-wide2 text-ink-muted"
-              numberOfLines={1}
-            >
-              {bar.label}
-            </Text>
-            <Text className="ml-2 font-mono-bold text-[11px] tracking-wide2 text-ink">
-              {bar.value}
-            </Text>
+          <View style={styles.row}>
+            <Text style={styles.label} numberOfLines={2}>{bar.label}</Text>
+            <Text style={styles.value}>{bar.value}</Text>
           </View>
-          <View className="h-2 w-full bg-elevated">
-            <View
-              className="h-full bg-accent"
-              style={{ width: `${Math.max(0, Math.min(1, bar.width)) * 100}%` }}
-            />
+          <View style={styles.track}>
+            <View style={[styles.fill, { width: `${Math.max(0, Math.min(1, bar.width)) * 100}%` }]} />
           </View>
         </View>
       ))}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 12,
+  },
+  row: {
+    marginBottom: 4,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  label: {
+    flex: 1,
+    color: tokens.inkMuted,
+    fontFamily: "SpaceMono_700Bold",
+    fontSize: 9,
+    letterSpacing: 0.8,
+  },
+  value: {
+    color: tokens.accent,
+    fontFamily: "SpaceMono_700Bold",
+    fontSize: 11,
+    letterSpacing: 0.6,
+  },
+  track: {
+    height: 12,
+    width: "100%",
+    backgroundColor: tokens.elevated,
+  },
+  fill: {
+    height: "100%",
+    backgroundColor: tokens.accent,
+  },
+});

@@ -1,4 +1,6 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
+import { tokens } from "@/constants/theme";
 
 export type ReportView = "builder" | "investor";
 
@@ -11,7 +13,7 @@ export function ViewToggle({ value, onChange }: Props) {
   return (
     <View
       accessibilityRole="tablist"
-      className="flex-row border border-border bg-surface p-1"
+      style={styles.container}
     >
       <Toggle
         label="BUILDER"
@@ -42,15 +44,39 @@ function Toggle({
       accessibilityRole="tab"
       accessibilityState={{ selected: active }}
       accessibilityLabel={label}
-      className={`flex-1 items-center justify-center py-2.5 ${active ? "bg-accent" : ""}`}
+      style={[styles.tab, active ? styles.activeTab : null]}
     >
-      <Text
-        className={`font-mono-bold text-[11px] tracking-wide2 ${
-          active ? "text-bg" : "text-ink-muted"
-        }`}
-      >
-        {label}
-      </Text>
+      <Text style={[styles.label, active ? styles.activeLabel : styles.inactiveLabel]}>{label}</Text>
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderColor: tokens.border,
+    backgroundColor: tokens.surface,
+    padding: 4,
+  },
+  tab: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+  },
+  activeTab: {
+    backgroundColor: tokens.accent,
+  },
+  label: {
+    fontFamily: "SpaceMono_700Bold",
+    fontSize: 11,
+    letterSpacing: 1.2,
+  },
+  activeLabel: {
+    color: tokens.bg,
+  },
+  inactiveLabel: {
+    color: tokens.inkMuted,
+  },
+});

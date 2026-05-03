@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { tokens } from "@/constants/theme";
 
@@ -30,35 +30,90 @@ export function MetricCard({
         : "text-accent";
 
   return (
-    <View className="flex-1 border border-border bg-surface p-4">
-      <View className="mb-2 flex-row items-center justify-between">
-        <Text className="font-mono text-[9px] tracking-wide2 text-ink-muted" numberOfLines={1}>
-          {label}
-        </Text>
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.label} numberOfLines={1}>{label}</Text>
         {icon ? <Ionicons name={icon} size={14} color={tokens.accent} /> : null}
       </View>
-      <View className="flex-row items-baseline gap-1">
-        <Text className={`font-display text-[28px] leading-[32px] ${colorClass}`}>{value}</Text>
+      <View style={styles.valueRow}>
+        <Text style={[styles.value, colorClass === "text-status-danger" ? styles.danger : colorClass === "text-ink" ? styles.ink : styles.accent]}>{value}</Text>
         {unit ? (
-          <Text className="font-mono text-[12px] text-ink-dim">{unit}</Text>
+          <Text style={styles.unit}>{unit}</Text>
         ) : null}
       </View>
       {progress !== undefined ? (
-        <View className="mt-2 h-[2px] w-full bg-elevated">
-          <View
-            className="h-full bg-accent"
-            style={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}
-          />
+        <View style={styles.track}>
+          <View style={[styles.fill, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]} />
         </View>
       ) : null}
       {subtitle ? (
-        <Text
-          className="mt-2 font-mono text-[9px] tracking-wide2 text-ink-dim"
-          numberOfLines={2}
-        >
-          {subtitle.toUpperCase()}
-        </Text>
+        <Text style={styles.subtitle} numberOfLines={2}>{subtitle.toUpperCase()}</Text>
       ) : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    flex: 1,
+    minHeight: 146,
+    borderWidth: 1,
+    borderColor: tokens.border,
+    backgroundColor: tokens.surface,
+    padding: 16,
+  },
+  header: {
+    marginBottom: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  label: {
+    flex: 1,
+    color: tokens.inkMuted,
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 9,
+    letterSpacing: 1.2,
+  },
+  valueRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 4,
+  },
+  value: {
+    fontFamily: "Inter_900Black",
+    fontSize: 28,
+    lineHeight: 32,
+  },
+  accent: {
+    color: tokens.accent,
+  },
+  danger: {
+    color: "#fca5a5",
+  },
+  ink: {
+    color: tokens.ink,
+  },
+  unit: {
+    color: tokens.inkDim,
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 12,
+  },
+  track: {
+    marginTop: 8,
+    height: 2,
+    width: "100%",
+    backgroundColor: tokens.elevated,
+  },
+  fill: {
+    height: "100%",
+    backgroundColor: tokens.accent,
+  },
+  subtitle: {
+    marginTop: 8,
+    color: tokens.inkDim,
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 9,
+    letterSpacing: 1.2,
+  },
+});

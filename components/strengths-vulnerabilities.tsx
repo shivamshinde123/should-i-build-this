@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { tokens } from "@/constants/theme";
 
@@ -10,7 +10,7 @@ type Props = {
 
 export function StrengthsVulnerabilities({ strengths, vulnerabilities }: Props) {
   return (
-    <View className="flex-row gap-4">
+    <View style={styles.container}>
       <Column
         title="STRENGTHS"
         items={strengths}
@@ -39,21 +39,42 @@ function Column({
   color: string;
 }) {
   return (
-    <View className="flex-1 gap-2">
-      <Text
-        className="font-mono-bold text-[10px] tracking-wide2"
-        style={{ color }}
-      >
-        {title}
-      </Text>
+    <View style={styles.column}>
+      <Text style={[styles.title, { color }]}>{title}</Text>
       {items.map((item) => (
-        <View key={item} className="flex-row items-start gap-2">
+        <View key={item} style={styles.row}>
           <Ionicons name={icon} size={11} color={color} style={{ marginTop: 3 }} />
-          <Text className="flex-1 font-sans text-[11px] leading-[15px] text-ink-muted">
-            {item}
-          </Text>
+          <Text style={styles.item}>{item}</Text>
         </View>
       ))}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    gap: 16,
+  },
+  column: {
+    flex: 1,
+    gap: 8,
+  },
+  title: {
+    fontFamily: "SpaceMono_700Bold",
+    fontSize: 10,
+    letterSpacing: 1.2,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  item: {
+    flex: 1,
+    color: tokens.inkMuted,
+    fontFamily: "Inter_400Regular",
+    fontSize: 11,
+    lineHeight: 15,
+  },
+});

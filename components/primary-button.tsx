@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, Text } from "react-native";
+import { Pressable, StyleSheet, Text, ViewStyle } from "react-native";
 
 import { tokens } from "@/constants/theme";
 
@@ -24,18 +24,47 @@ export function PrimaryButton({ label, icon, onPress, disabled, variant = "solid
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!disabled }}
-      className={`w-full flex-row items-center justify-center gap-2 px-4 py-4 ${
-        solid ? "bg-accent" : "border border-accent"
-      }`}
-      style={({ pressed }) => ({ opacity: disabled ? 0.4 : pressed ? 0.85 : 1 })}
+      style={({ pressed }) => [
+        styles.base,
+        solid ? styles.solid : styles.outline,
+        disabled ? styles.disabled : null,
+        pressed && !disabled ? styles.pressed : null,
+      ]}
     >
       {icon ? <Ionicons name={icon} size={14} color={fg} /> : null}
-      <Text
-        className="font-mono-bold text-[12px] tracking-wide2"
-        style={{ color: fg }}
-      >
-        {label}
-      </Text>
+      <Text style={[styles.label, { color: fg }]}>{label}</Text>
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  base: {
+    width: "100%",
+    minHeight: 56,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  } satisfies ViewStyle,
+  solid: {
+    backgroundColor: tokens.accent,
+  },
+  outline: {
+    borderWidth: 1,
+    borderColor: tokens.accent,
+    backgroundColor: "transparent",
+  },
+  label: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 12,
+    letterSpacing: 1.2,
+  },
+  disabled: {
+    opacity: 0.4,
+  },
+  pressed: {
+    opacity: 0.85,
+  },
+});
