@@ -20,9 +20,9 @@ export function TerminalLogs({ logs = DEFAULT_LOGS }: { logs?: LogEntry[] }) {
         REAL-TIME VALIDATION LOGS
       </Text>
       <View className="gap-1">
-        {logs.map((log, i) => (
+        {logs.map((log) => (
           <Text
-            key={`${log.time}-${i}`}
+            key={`${log.time}-${log.message}`}
             numberOfLines={1}
             className={`font-mono text-[10px] ${
               log.variant === "error" ? "text-status-danger" : "text-ink-muted"

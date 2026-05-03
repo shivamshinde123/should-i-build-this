@@ -15,6 +15,9 @@ export function PrimaryButton({ label, icon = "flash", onPress, disabled }: Prop
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: !!disabled }}
       className="w-full flex-row items-center justify-center gap-2 rounded-sm bg-accent px-4 py-4"
       style={({ pressed }) => ({ opacity: disabled ? 0.4 : pressed ? 0.85 : 1 })}
     >

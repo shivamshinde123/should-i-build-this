@@ -38,6 +38,8 @@ export function SectionCard({
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={tokens.inkDim}
+        accessibilityLabel={title}
+        accessibilityHint={placeholder}
         className="rounded-sm bg-elevated px-3 py-3 text-[13px] text-ink"
         style={{ minHeight, textAlignVertical: "top" }}
       />
