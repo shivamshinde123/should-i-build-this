@@ -15,13 +15,17 @@ export function LoadingView({ onCancel }: Props) {
     >
       <View className="gap-7 px-5 pt-8">
         <View className="items-center">
-          <Pressable
-            onPress={onCancel}
-            accessibilityRole="button"
-            accessibilityLabel="Cancel stress test"
-          >
+          {onCancel ? (
+            <Pressable
+              onPress={onCancel}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel stress test"
+            >
+              <SynthesizingRadar size={240} />
+            </Pressable>
+          ) : (
             <SynthesizingRadar size={240} />
-          </Pressable>
+          )}
         </View>
 
         <View className="items-center">
