@@ -80,14 +80,18 @@ const CONCERNS: Concern[] = [
 
 export default function ReportsScreen() {
   const [view, setView] = useState<ReportView>("builder");
+  const [footerHeight, setFooterHeight] = useState(0);
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-bg">
       <AppHeader />
       <View className="flex-1">
         <ScrollView
+          className="flex-1"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: view === "builder" ? 120 : 32 }}
+          contentContainerStyle={{
+            paddingBottom: (view === "builder" ? footerHeight : 0) + 32,
+          }}
         >
           <View className="gap-5 px-5 pt-6">
             <View>
@@ -109,10 +113,15 @@ export default function ReportsScreen() {
         </ScrollView>
 
         {view === "builder" ? (
-          <FinalRecommendationBar
-            primaryLabel="INITIATE_BUILD"
-            secondaryLabel="PROCEED WITH REDUCED SCOPE"
-          />
+          <View
+            onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
+            className="absolute bottom-0 left-0 right-0"
+          >
+            <FinalRecommendationBar
+              primaryLabel="INITIATE_BUILD"
+              secondaryLabel="PROCEED WITH REDUCED SCOPE"
+            />
+          </View>
         ) : null}
       </View>
     </SafeAreaView>

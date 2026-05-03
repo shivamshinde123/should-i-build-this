@@ -27,6 +27,7 @@ export function FinalRecommendationBar({
               label={secondaryLabel}
               variant="outline"
               onPress={onSecondary}
+              disabled={!onSecondary}
             />
           </View>
         ) : null}
@@ -36,6 +37,7 @@ export function FinalRecommendationBar({
             variant="solid"
             icon="rocket"
             onPress={onPrimary}
+            disabled={!onPrimary}
           />
         </View>
       </View>

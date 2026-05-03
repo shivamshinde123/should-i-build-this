@@ -9,7 +9,10 @@ type Props = {
 
 export function ViewToggle({ value, onChange }: Props) {
   return (
-    <View className="flex-row rounded-sm border border-border bg-surface p-1">
+    <View
+      accessibilityRole="tablist"
+      className="flex-row rounded-sm border border-border bg-surface p-1"
+    >
       <Toggle
         label="BUILDER"
         active={value === "builder"}
