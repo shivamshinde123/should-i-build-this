@@ -1,4 +1,4 @@
-import { Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 
 import { tokens } from "@/constants/theme";
 
@@ -19,17 +19,19 @@ export function SectionCard({
   placeholder,
   value,
   onChangeText,
-  minHeight = 96,
+  minHeight = 110,
 }: Props) {
   return (
-    <View className="rounded-sm border border-border bg-surface p-4">
-      <View className="mb-3 flex-row items-center justify-between">
-        <View className="flex-row items-center gap-3">
-          <Text className="font-mono text-[11px] tracking-terminal text-accent">{number}</Text>
-          <Text className="font-mono text-[12px] tracking-terminal text-ink">{title}</Text>
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <View style={styles.titleRow}>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{number}</Text>
+          </View>
+          <Text style={styles.title}>{title}</Text>
         </View>
         {required ? (
-          <Text className="font-mono text-[10px] tracking-terminal text-ink-dim">REQUIRED</Text>
+          <Text style={styles.required}>REQUIRED</Text>
         ) : null}
       </View>
       <TextInput
@@ -40,9 +42,65 @@ export function SectionCard({
         placeholderTextColor={tokens.inkDim}
         accessibilityLabel={title}
         accessibilityHint={placeholder}
-        className="rounded-sm bg-elevated px-3 py-3 text-[13px] text-ink"
-        style={{ minHeight, textAlignVertical: "top" }}
+        style={[styles.input, { minHeight }]}
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderWidth: 1,
+    borderColor: tokens.border,
+    backgroundColor: tokens.surface,
+    padding: 16,
+  },
+  header: {
+    marginBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flexShrink: 1,
+  },
+  badge: {
+    backgroundColor: tokens.accent,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    color: tokens.bg,
+    fontFamily: "SpaceMono_700Bold",
+    fontSize: 10,
+    letterSpacing: 0.8,
+  },
+  title: {
+    color: tokens.ink,
+    fontFamily: "SpaceMono_700Bold",
+    fontSize: 11,
+    letterSpacing: 1.2,
+    flexShrink: 1,
+  },
+  required: {
+    color: tokens.inkDim,
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 9,
+    letterSpacing: 1.2,
+  },
+  input: {
+    backgroundColor: tokens.bg,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    color: tokens.ink,
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 13,
+    lineHeight: 20,
+    textAlignVertical: "top",
+    borderWidth: 1,
+    borderColor: tokens.hairline,
+  },
+});

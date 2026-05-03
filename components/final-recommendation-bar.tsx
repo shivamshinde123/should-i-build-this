@@ -1,4 +1,6 @@
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+
+import { tokens } from "@/constants/theme";
 
 import { PrimaryButton } from "@/components/primary-button";
 
@@ -16,13 +18,11 @@ export function FinalRecommendationBar({
   onSecondary,
 }: Props) {
   return (
-    <View className="border-t border-border bg-bg px-4 py-3">
-      <Text className="mb-2 font-mono text-[9px] tracking-terminal text-ink-dim">
-        FINAL RECOMMENDATION
-      </Text>
-      <View className="flex-row gap-2">
+    <View style={styles.container}>
+      <Text style={styles.caption}>FINAL RECOMMENDATION</Text>
+      <View style={styles.row}>
         {secondaryLabel ? (
-          <View className="flex-1">
+          <View style={styles.flex}>
             <PrimaryButton
               label={secondaryLabel}
               variant="outline"
@@ -31,7 +31,7 @@ export function FinalRecommendationBar({
             />
           </View>
         ) : null}
-        <View className="flex-1">
+        <View style={styles.flex}>
           <PrimaryButton
             label={primaryLabel}
             variant="solid"
@@ -44,3 +44,28 @@ export function FinalRecommendationBar({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    borderTopWidth: 1,
+    borderTopColor: tokens.border,
+    backgroundColor: tokens.bg,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 16,
+  },
+  caption: {
+    marginBottom: 8,
+    color: tokens.inkFaint,
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 9,
+    letterSpacing: 1.2,
+  },
+  row: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  flex: {
+    flex: 1,
+  },
+});

@@ -1,5 +1,6 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
@@ -12,6 +13,7 @@ import { MetricsGrid } from "@/components/metrics-grid";
 import { ScoreDisplay } from "@/components/score-display";
 import { StrengthsVulnerabilities } from "@/components/strengths-vulnerabilities";
 import { ViewToggle, type ReportView } from "@/components/view-toggle";
+import { tokens } from "@/constants/theme";
 
 const REPORT = {
   title: "ORBITAL SYNC",
@@ -21,14 +23,14 @@ const REPORT = {
 
 const BUILDER_METRICS: MetricCardProps[] = [
   { label: "OVERALL SCORE", value: "6.8", unit: "/10", progress: 0.68 },
-  { label: "EST. EFFORT", value: "HIGH", subtitle: "~1,200 Engineering Hrs" },
+  { label: "EST. EFFORT", value: "HIGH", valueColor: "ink", subtitle: "~1,200 Engineering Hrs" },
   {
     label: "RISK LEVEL",
     value: "ELEVATED",
     valueColor: "danger",
     subtitle: "Data Consistency Hazard",
   },
-  { label: "MVP TIMELINE", value: "6-8 WKS", subtitle: "To Alpha release" },
+  { label: "MVP TIMELINE", value: "6-8 WKS", valueColor: "ink", subtitle: "To Alpha release" },
 ];
 
 const INVESTOR_METRICS: MetricCardProps[] = [
@@ -48,13 +50,14 @@ const INVESTOR_METRICS: MetricCardProps[] = [
   {
     label: "DEFENSIBILITY",
     value: "LOW",
-    valueColor: "danger",
+    valueColor: "ink",
     subtitle: "Open Source Threats",
     icon: "shield-outline",
   },
   {
     label: "TRACTION GOAL",
     value: "10 Pilots",
+    valueColor: "ink",
     subtitle: "Q4 2024 Milestone",
     icon: "locate-outline",
   },
@@ -75,6 +78,7 @@ const CONCERNS: Concern[] = [
     title: "SALES CYCLE",
     description:
       "Initial pilot feedback suggests 18-month sales cycles for Tier 1 satellite operators, exceeding current runway projections.",
+    severity: "info",
   },
 ];
 
@@ -83,27 +87,24 @@ export default function ReportsScreen() {
   const [footerHeight, setFooterHeight] = useState(0);
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-bg">
+    <SafeAreaView edges={["top"]} style={styles.safeArea}>
       <AppHeader />
-      <View className="flex-1">
+      <View style={styles.flex}>
         <ScrollView
-          className="flex-1"
+          style={styles.flex}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingBottom: (view === "builder" ? footerHeight : 0) + 32,
           }}
         >
-          <View className="gap-5 px-5 pt-6">
+          <View style={styles.content}>
             <View>
-              <Text className="font-mono text-[10px] tracking-terminal text-ink-muted">
-                ANALYSIS REPORT
-              </Text>
-              <Text className="mt-1 font-mono text-[14px] font-bold tracking-terminal text-ink">
-                {REPORT.title}
-              </Text>
-              <Text className="mt-3 font-sans text-[13px] leading-[18px] text-ink-muted">
-                {REPORT.description}
-              </Text>
+              <View style={styles.analysisRow}>
+                <Text style={styles.analysisLabel}>ANALYSIS REPORT</Text>
+                <View style={styles.analysisLine} />
+              </View>
+              <Text style={styles.reportTitle}>{REPORT.title}</Text>
+              <Text style={styles.reportDescription}>{REPORT.description}</Text>
             </View>
 
             <ViewToggle value={view} onChange={setView} />
@@ -115,7 +116,7 @@ export default function ReportsScreen() {
         {view === "builder" ? (
           <View
             onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
-            className="absolute bottom-0 left-0 right-0"
+            style={styles.footerWrap}
           >
             <FinalRecommendationBar
               primaryLabel="INITIATE_BUILD"
@@ -134,8 +135,8 @@ function BuilderView() {
       <MetricsGrid metrics={BUILDER_METRICS} layout="grid" />
 
       <CollapsibleSection number="01" title="PROBLEM CLARITY" defaultOpen>
-        <View className="gap-4">
-          <Text className="font-sans text-[13px] leading-[18px] text-ink-muted">
+        <View style={styles.sectionGap}>
+          <Text style={styles.bodyText}>
             The core problem addresses the massive sync latency between ground-station data
             processing and cloud-based telemetry storage. Current solutions lag by &gt;500ms,
             whereas Orbital Sync proposes a sub-50ms window using Edge-Native pre-processing.
@@ -157,23 +158,23 @@ function BuilderView() {
       </CollapsibleSection>
 
       <CollapsibleSection number="02" title="TECHNICAL FEASIBILITY">
-        <Text className="font-sans text-[13px] leading-[18px] text-ink-muted">
+        <Text style={styles.bodyText}>
           Edge pre-processing architecture is feasible with existing hardware vendor APIs but
           requires deep firmware-level optimization.
         </Text>
       </CollapsibleSection>
 
       <CollapsibleSection number="03" title="LEARNING VALUE">
-        <Text className="font-sans text-[13px] leading-[18px] text-ink-muted">
+        <Text style={styles.bodyText}>
           High exposure to distributed systems, satellite telemetry pipelines, and edge compute
           orchestration.
         </Text>
       </CollapsibleSection>
 
       <CollapsibleSection number="04" title="APPROACHES TO BUILD">
-        <Text className="font-sans text-[13px] leading-[18px] text-ink-muted">
-          Three viable paths: (1) Lean MVP with sandbox simulator, (2) pilot integration with
-          one Tier-2 partner, (3) full vertical-stack research prototype.
+        <Text style={styles.bodyText}>
+          Three viable paths: (1) Lean MVP with sandbox simulator, (2) pilot integration with one
+          Tier-2 partner, (3) full vertical-stack research prototype.
         </Text>
       </CollapsibleSection>
     </>
@@ -191,7 +192,7 @@ function InvestorView() {
         icon="bar-chart-outline"
         defaultOpen
       >
-        <View className="gap-4">
+        <View style={styles.sectionGap}>
           <MarketSizeBars
             bars={[
               {
@@ -212,21 +213,24 @@ function InvestorView() {
             ]}
           />
 
-          <View className="items-center rounded-sm bg-elevated px-4 py-7">
-            <Text className="font-mono text-[10px] tracking-terminal text-ink-dim">
-              TARGET SECTOR
-            </Text>
-            <Text className="mt-2 font-mono text-[20px] font-black tracking-terminal text-accent">
-              ORBITAL LOGISTICS
-            </Text>
+          <View style={styles.targetCard}>
+            <LinearGradient
+              colors={["#1c1c1c", "#0a0a0a"]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.targetGradient}
+            >
+              <Text style={styles.targetCaption}>TARGET SECTOR</Text>
+              <Text style={styles.targetValue}>ORBITAL LOGISTICS</Text>
+            </LinearGradient>
           </View>
         </View>
       </CollapsibleSection>
 
       <CollapsibleSection number="2." title="DEFENSIBILITY MOATS" icon="shield-outline">
-        <Text className="font-sans text-[13px] leading-[18px] text-ink-muted">
-          Initial moat is technical-differentiation only; patentability of edge sync algorithms
-          is contested.
+        <Text style={styles.bodyText}>
+          Initial moat is technical-differentiation only; patentability of edge sync algorithms is
+          contested.
         </Text>
       </CollapsibleSection>
 
@@ -235,15 +239,15 @@ function InvestorView() {
         title="TRACTION REQUIREMENTS"
         icon="trending-up-outline"
       >
-        <Text className="font-sans text-[13px] leading-[18px] text-ink-muted">
-          10 paid pilots within 12 months at $80k–$120k ACV to reach Series-A readiness.
+        <Text style={styles.bodyText}>
+          10 paid pilots within 12 months at $80k-$120k ACV to reach Series-A readiness.
         </Text>
       </CollapsibleSection>
 
       <CollapsibleSection number="4." title="BUSINESS MODEL" icon="business-outline">
-        <Text className="font-sans text-[13px] leading-[18px] text-ink-muted">
-          Tiered usage-based pricing with premium SLAs for Tier-1 operators; long-term licensing
-          as upsell.
+        <Text style={styles.bodyText}>
+          Tiered usage-based pricing with premium SLAs for Tier-1 operators; long-term licensing as
+          upsell.
         </Text>
       </CollapsibleSection>
 
@@ -251,3 +255,87 @@ function InvestorView() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: tokens.bg,
+  },
+  flex: {
+    flex: 1,
+  },
+  content: {
+    gap: 20,
+    paddingHorizontal: 20,
+    paddingTop: 24,
+  },
+  analysisRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  analysisLabel: {
+    color: tokens.inkMuted,
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 10,
+    letterSpacing: 1.2,
+  },
+  analysisLine: {
+    height: 1,
+    flex: 1,
+    backgroundColor: tokens.hairline,
+  },
+  reportTitle: {
+    marginTop: 12,
+    color: tokens.ink,
+    fontFamily: "Inter_500Medium",
+    fontSize: 24,
+    lineHeight: 26,
+  },
+  reportDescription: {
+    marginTop: 12,
+    maxWidth: 330,
+    color: tokens.inkMuted,
+    fontFamily: "Inter_400Regular",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  footerWrap: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  sectionGap: {
+    gap: 16,
+  },
+  bodyText: {
+    color: tokens.inkMuted,
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  targetCard: {
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: tokens.hairline,
+  },
+  targetGradient: {
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 28,
+  },
+  targetCaption: {
+    color: tokens.inkDim,
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 10,
+    letterSpacing: 1.2,
+  },
+  targetValue: {
+    marginTop: 8,
+    color: tokens.accent,
+    fontFamily: "Inter_900Black",
+    fontSize: 22,
+    letterSpacing: 0.8,
+  },
+});

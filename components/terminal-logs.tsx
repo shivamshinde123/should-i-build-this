@@ -1,4 +1,6 @@
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+
+import { tokens } from "@/constants/theme";
 
 export type LogEntry = {
   time: string;
@@ -15,18 +17,14 @@ const DEFAULT_LOGS: LogEntry[] = [
 
 export function TerminalLogs({ logs = DEFAULT_LOGS }: { logs?: LogEntry[] }) {
   return (
-    <View className="rounded-sm border border-border bg-surface p-4">
-      <Text className="mb-3 font-mono text-[12px] tracking-terminal text-ink">
-        REAL-TIME VALIDATION LOGS
-      </Text>
-      <View className="gap-1">
+    <View style={styles.card}>
+      <Text style={styles.title}>REAL-TIME VALIDATION LOGS</Text>
+      <View style={styles.logs}>
         {logs.map((log) => (
           <Text
             key={`${log.time}-${log.message}`}
             numberOfLines={1}
-            className={`font-mono text-[10px] ${
-              log.variant === "error" ? "text-status-danger" : "text-ink-muted"
-            }`}
+            style={[styles.log, log.variant === "error" ? styles.error : styles.info]}
           >
             [{log.time}] {log.message}
           </Text>
@@ -35,3 +33,33 @@ export function TerminalLogs({ logs = DEFAULT_LOGS }: { logs?: LogEntry[] }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderWidth: 1,
+    borderColor: tokens.border,
+    backgroundColor: tokens.surface,
+    padding: 16,
+  },
+  title: {
+    marginBottom: 12,
+    color: tokens.ink,
+    fontFamily: "Inter_500Medium",
+    fontSize: 11,
+    letterSpacing: 1.2,
+  },
+  logs: {
+    gap: 6,
+  },
+  log: {
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 10,
+    letterSpacing: 0.6,
+  },
+  info: {
+    color: tokens.inkMuted,
+  },
+  error: {
+    color: tokens.danger,
+  },
+});

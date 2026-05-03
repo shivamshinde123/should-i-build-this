@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -43,16 +43,14 @@ export function DiagnosticPipeline() {
   const statuses = FRAMES[frame];
 
   return (
-    <View className="rounded-sm border border-border bg-surface p-4">
-      <View className="mb-3 flex-row items-center justify-between border-b border-hairline pb-3">
-        <Text className="font-mono text-[12px] tracking-terminal text-ink">
-          DIAGNOSTIC PIPELINE
-        </Text>
-        <Text className="font-mono text-[10px] tracking-terminal text-ink-muted">
-          STATUS: <Text className="text-accent">ACTIVE</Text>
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.title}>DIAGNOSTIC PIPELINE</Text>
+        <Text style={styles.status}>
+          STATUS: <Text style={styles.statusAccent}>ACTIVE</Text>
         </Text>
       </View>
-      <View className="gap-3">
+      <View style={styles.list}>
         {STEPS.map((label, i) => (
           <PipelineRow key={label} label={label} status={statuses[i]} />
         ))}
@@ -63,12 +61,10 @@ export function DiagnosticPipeline() {
 
 function PipelineRow({ label, status }: { label: string; status: Status }) {
   return (
-    <View className="flex-row items-center justify-between">
-      <View className="flex-row items-center gap-3">
+    <View style={styles.row}>
+      <View style={styles.rowLeft}>
         <StatusIcon status={status} />
-        <Text
-          className={`font-sans text-[13px] ${status === "wait" ? "text-ink-dim" : "text-ink"}`}
-        >
+        <Text style={[styles.rowText, status === "wait" ? styles.waitText : styles.activeText]}>
           {label}
         </Text>
       </View>
@@ -79,12 +75,12 @@ function PipelineRow({ label, status }: { label: string; status: Status }) {
 
 function StatusIcon({ status }: { status: Status }) {
   if (status === "pass") {
-    return <Ionicons name="checkmark-circle-outline" size={16} color={tokens.accent} />;
+    return <Ionicons name="checkmark-circle" size={16} color={tokens.accent} />;
   }
   if (status === "syncing") {
     return <SpinnerIcon />;
   }
-  return <Ionicons name="ellipse-outline" size={16} color={tokens.inkDim} />;
+  return <Ionicons name="ellipse-outline" size={14} color={tokens.inkFaint} />;
 }
 
 function SpinnerIcon() {
@@ -92,7 +88,7 @@ function SpinnerIcon() {
 
   useEffect(() => {
     rotation.value = withRepeat(
-      withTiming(360, { duration: 1000, easing: Easing.linear }),
+      withTiming(360, { duration: 900, easing: Easing.linear }),
       -1,
       false,
     );
@@ -112,22 +108,80 @@ function SpinnerIcon() {
 const BADGE = {
   pass: { label: "PASS", color: tokens.accent, border: tokens.accent },
   syncing: { label: "SYNCING", color: tokens.inkMuted, border: tokens.inkMuted },
-  wait: { label: "WAIT", color: tokens.inkDim, border: tokens.inkDim },
+  wait: { label: "WAIT", color: tokens.inkFaint, border: tokens.inkFaint },
 } as const;
 
 function StatusBadge({ status }: { status: Status }) {
   const { label, color, border } = BADGE[status];
   return (
-    <View
-      className="rounded-sm border px-2 py-0.5"
-      style={{ borderColor: border }}
-    >
-      <Text
-        className="font-mono text-[10px] font-bold tracking-terminal"
-        style={{ color }}
-      >
-        {label}
-      </Text>
+    <View style={[styles.badge, { borderColor: border }]}>
+      <Text style={[styles.badgeText, { color }]}>{label}</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderWidth: 1,
+    borderColor: tokens.accent,
+    backgroundColor: tokens.surface,
+    padding: 16,
+  },
+  header: {
+    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.hairline,
+    paddingBottom: 12,
+  },
+  title: {
+    color: tokens.ink,
+    fontFamily: "Inter_500Medium",
+    fontSize: 11,
+    letterSpacing: 1.2,
+  },
+  status: {
+    color: tokens.inkMuted,
+    fontFamily: "SpaceMono_400Regular",
+    fontSize: 10,
+    letterSpacing: 1.2,
+  },
+  statusAccent: {
+    color: tokens.accent,
+  },
+  list: {
+    gap: 12,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  rowLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  rowText: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 13,
+  },
+  waitText: {
+    color: tokens.inkFaint,
+  },
+  activeText: {
+    color: tokens.ink,
+  },
+  badge: {
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    fontFamily: "SpaceMono_700Bold",
+    fontSize: 10,
+    letterSpacing: 1.2,
+  },
+});
