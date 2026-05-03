@@ -43,12 +43,12 @@ export function DiagnosticPipeline() {
   const statuses = FRAMES[frame];
 
   return (
-    <View className="rounded-sm border border-border bg-surface p-4">
-      <View className="mb-3 flex-row items-center justify-between border-b border-hairline pb-3">
-        <Text className="font-mono text-[12px] tracking-terminal text-ink">
+    <View className="border border-accent bg-surface p-4">
+      <View className="mb-4 flex-row items-center justify-between border-b border-hairline pb-3">
+        <Text className="font-mono-bold text-[11px] tracking-wide2 text-ink">
           DIAGNOSTIC PIPELINE
         </Text>
-        <Text className="font-mono text-[10px] tracking-terminal text-ink-muted">
+        <Text className="font-mono text-[10px] tracking-wide2 text-ink-muted">
           STATUS: <Text className="text-accent">ACTIVE</Text>
         </Text>
       </View>
@@ -67,7 +67,7 @@ function PipelineRow({ label, status }: { label: string; status: Status }) {
       <View className="flex-row items-center gap-3">
         <StatusIcon status={status} />
         <Text
-          className={`font-sans text-[13px] ${status === "wait" ? "text-ink-dim" : "text-ink"}`}
+          className={`font-sans text-[13px] ${status === "wait" ? "text-ink-faint" : "text-ink"}`}
         >
           {label}
         </Text>
@@ -79,12 +79,12 @@ function PipelineRow({ label, status }: { label: string; status: Status }) {
 
 function StatusIcon({ status }: { status: Status }) {
   if (status === "pass") {
-    return <Ionicons name="checkmark-circle-outline" size={16} color={tokens.accent} />;
+    return <Ionicons name="checkmark-circle" size={16} color={tokens.accent} />;
   }
   if (status === "syncing") {
     return <SpinnerIcon />;
   }
-  return <Ionicons name="ellipse-outline" size={16} color={tokens.inkDim} />;
+  return <Ionicons name="ellipse-outline" size={14} color={tokens.inkFaint} />;
 }
 
 function SpinnerIcon() {
@@ -92,7 +92,7 @@ function SpinnerIcon() {
 
   useEffect(() => {
     rotation.value = withRepeat(
-      withTiming(360, { duration: 1000, easing: Easing.linear }),
+      withTiming(360, { duration: 900, easing: Easing.linear }),
       -1,
       false,
     );
@@ -112,18 +112,15 @@ function SpinnerIcon() {
 const BADGE = {
   pass: { label: "PASS", color: tokens.accent, border: tokens.accent },
   syncing: { label: "SYNCING", color: tokens.inkMuted, border: tokens.inkMuted },
-  wait: { label: "WAIT", color: tokens.inkDim, border: tokens.inkDim },
+  wait: { label: "WAIT", color: tokens.inkFaint, border: tokens.inkFaint },
 } as const;
 
 function StatusBadge({ status }: { status: Status }) {
   const { label, color, border } = BADGE[status];
   return (
-    <View
-      className="rounded-sm border px-2 py-0.5"
-      style={{ borderColor: border }}
-    >
+    <View className="border px-2 py-0.5" style={{ borderColor: border }}>
       <Text
-        className="font-mono text-[10px] font-bold tracking-terminal"
+        className="font-mono-bold text-[10px] tracking-wide2"
         style={{ color }}
       >
         {label}

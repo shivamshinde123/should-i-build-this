@@ -15,16 +15,16 @@ const DEFAULT_LOGS: LogEntry[] = [
 
 export function TerminalLogs({ logs = DEFAULT_LOGS }: { logs?: LogEntry[] }) {
   return (
-    <View className="rounded-sm border border-border bg-surface p-4">
-      <Text className="mb-3 font-mono text-[12px] tracking-terminal text-ink">
+    <View className="border border-border bg-surface p-4">
+      <Text className="mb-3 font-mono-bold text-[11px] tracking-wide2 text-ink">
         REAL-TIME VALIDATION LOGS
       </Text>
-      <View className="gap-1">
+      <View className="gap-1.5">
         {logs.map((log) => (
           <Text
             key={`${log.time}-${log.message}`}
             numberOfLines={1}
-            className={`font-mono text-[10px] ${
+            className={`font-mono text-[10px] tracking-wide ${
               log.variant === "error" ? "text-status-danger" : "text-ink-muted"
             }`}
           >

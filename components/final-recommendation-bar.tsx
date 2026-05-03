@@ -16,8 +16,8 @@ export function FinalRecommendationBar({
   onSecondary,
 }: Props) {
   return (
-    <View className="border-t border-border bg-bg px-4 py-3">
-      <Text className="mb-2 font-mono text-[9px] tracking-terminal text-ink-dim">
+    <View className="border-t border-border bg-bg px-4 pb-4 pt-3">
+      <Text className="mb-2 font-mono text-[9px] tracking-wide2 text-ink-faint">
         FINAL RECOMMENDATION
       </Text>
       <View className="flex-row gap-2">

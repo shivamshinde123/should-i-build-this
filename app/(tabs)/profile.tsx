@@ -8,7 +8,7 @@ export default function ProfileScreen() {
     <SafeAreaView edges={["top"]} className="flex-1 bg-bg">
       <AppHeader />
       <View className="flex-1 items-center justify-center px-6">
-        <Text className="font-mono text-[11px] tracking-terminal text-ink-muted">
+        <Text className="font-mono-bold text-[11px] tracking-wide2 text-ink-muted">
           GUEST OPERATOR
         </Text>
       </View>

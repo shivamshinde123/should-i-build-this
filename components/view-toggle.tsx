@@ -11,7 +11,7 @@ export function ViewToggle({ value, onChange }: Props) {
   return (
     <View
       accessibilityRole="tablist"
-      className="flex-row rounded-sm border border-border bg-surface p-1"
+      className="flex-row border border-border bg-surface p-1"
     >
       <Toggle
         label="BUILDER"
@@ -42,10 +42,10 @@ function Toggle({
       accessibilityRole="tab"
       accessibilityState={{ selected: active }}
       accessibilityLabel={label}
-      className={`flex-1 items-center justify-center rounded-sm py-2 ${active ? "bg-accent" : ""}`}
+      className={`flex-1 items-center justify-center py-2.5 ${active ? "bg-accent" : ""}`}
     >
       <Text
-        className={`font-mono text-[11px] font-bold tracking-terminal ${
+        className={`font-mono-bold text-[11px] tracking-wide2 ${
           active ? "text-bg" : "text-ink-muted"
         }`}
       >

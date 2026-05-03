@@ -16,11 +16,14 @@ export default function TabLayout() {
           backgroundColor: tokens.bg,
           borderTopColor: tokens.border,
           borderTopWidth: 1,
+          height: 64,
+          paddingTop: 6,
+          paddingBottom: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
-          letterSpacing: 1.4,
-          fontWeight: "600",
+          fontSize: 9,
+          letterSpacing: 1.5,
+          fontFamily: "SpaceMono_700Bold",
         },
       }}
     >

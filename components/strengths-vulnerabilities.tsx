@@ -10,7 +10,7 @@ type Props = {
 
 export function StrengthsVulnerabilities({ strengths, vulnerabilities }: Props) {
   return (
-    <View className="flex-row gap-3">
+    <View className="flex-row gap-4">
       <Column
         title="STRENGTHS"
         items={strengths}
@@ -40,13 +40,16 @@ function Column({
 }) {
   return (
     <View className="flex-1 gap-2">
-      <Text className="font-mono text-[10px] tracking-terminal" style={{ color }}>
+      <Text
+        className="font-mono-bold text-[10px] tracking-wide2"
+        style={{ color }}
+      >
         {title}
       </Text>
       {items.map((item) => (
         <View key={item} className="flex-row items-start gap-2">
-          <Ionicons name={icon} size={12} color={color} style={{ marginTop: 2 }} />
-          <Text className="flex-1 font-sans text-[12px] leading-[16px] text-ink-muted">
+          <Ionicons name={icon} size={11} color={color} style={{ marginTop: 3 }} />
+          <Text className="flex-1 font-sans text-[11px] leading-[15px] text-ink-muted">
             {item}
           </Text>
         </View>

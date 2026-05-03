@@ -24,14 +24,14 @@ export function PrimaryButton({ label, icon, onPress, disabled, variant = "solid
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!disabled }}
-      className={`w-full flex-row items-center justify-center gap-2 rounded-sm px-4 py-4 ${
+      className={`w-full flex-row items-center justify-center gap-2 px-4 py-4 ${
         solid ? "bg-accent" : "border border-accent"
       }`}
       style={({ pressed }) => ({ opacity: disabled ? 0.4 : pressed ? 0.85 : 1 })}
     >
-      {icon ? <Ionicons name={icon} size={16} color={fg} /> : null}
+      {icon ? <Ionicons name={icon} size={14} color={fg} /> : null}
       <Text
-        className="font-mono text-[13px] font-bold tracking-terminal"
+        className="font-mono-bold text-[12px] tracking-wide2"
         style={{ color: fg }}
       >
         {label}

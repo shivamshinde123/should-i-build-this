@@ -19,17 +19,19 @@ export function SectionCard({
   placeholder,
   value,
   onChangeText,
-  minHeight = 96,
+  minHeight = 110,
 }: Props) {
   return (
-    <View className="rounded-sm border border-border bg-surface p-4">
+    <View className="border border-border bg-surface p-4">
       <View className="mb-3 flex-row items-center justify-between">
         <View className="flex-row items-center gap-3">
-          <Text className="font-mono text-[11px] tracking-terminal text-accent">{number}</Text>
-          <Text className="font-mono text-[12px] tracking-terminal text-ink">{title}</Text>
+          <View className="bg-accent px-1.5 py-0.5">
+            <Text className="font-mono-bold text-[10px] tracking-terminal text-bg">{number}</Text>
+          </View>
+          <Text className="font-mono-bold text-[11px] tracking-wide2 text-ink">{title}</Text>
         </View>
         {required ? (
-          <Text className="font-mono text-[10px] tracking-terminal text-ink-dim">REQUIRED</Text>
+          <Text className="font-mono text-[9px] tracking-wide2 text-ink-dim">REQUIRED</Text>
         ) : null}
       </View>
       <TextInput
@@ -40,7 +42,7 @@ export function SectionCard({
         placeholderTextColor={tokens.inkDim}
         accessibilityLabel={title}
         accessibilityHint={placeholder}
-        className="rounded-sm bg-elevated px-3 py-3 text-[13px] text-ink"
+        className="bg-bg px-3 py-3 font-sans text-[13px] leading-[18px] text-ink"
         style={{ minHeight, textAlignVertical: "top" }}
       />
     </View>

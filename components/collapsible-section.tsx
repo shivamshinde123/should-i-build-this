@@ -23,19 +23,23 @@ export function CollapsibleSection({
 
   return (
     <View
-      className={`rounded-sm border bg-surface ${open ? "border-accent" : "border-border"}`}
+      className={`border bg-surface ${open ? "border-accent" : "border-border"}`}
     >
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
         accessibilityLabel={`${title}, section ${number}`}
         onPress={() => setOpen((v) => !v)}
-        className="flex-row items-center justify-between px-4 py-3"
+        className="flex-row items-center justify-between px-4 py-4"
       >
         <View className="flex-row items-center gap-3">
           {icon ? <Ionicons name={icon} size={14} color={tokens.inkMuted} /> : null}
-          <Text className="font-mono text-[11px] tracking-terminal text-accent">{number}</Text>
-          <Text className="font-mono text-[12px] tracking-terminal text-ink">{title}</Text>
+          <Text className="font-mono-bold text-[11px] tracking-wide2 text-accent">
+            {number}
+          </Text>
+          <Text className="font-mono-bold text-[11px] tracking-wide2 text-ink">
+            {title}
+          </Text>
         </View>
         <Ionicons
           name={open ? "chevron-up" : "chevron-down"}

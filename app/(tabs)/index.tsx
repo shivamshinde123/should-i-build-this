@@ -28,18 +28,22 @@ export default function ValidateScreen() {
           className="flex-1"
         >
           <ScrollView
+            className="flex-1"
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: 32 }}
           >
             <View className="gap-5 px-5 pt-6">
-              <View className="self-start rounded-sm bg-accent px-2 py-1">
-                <Text className="font-mono text-[11px] font-semibold tracking-terminal text-bg">
+              <View className="self-start bg-accent px-2 py-1">
+                <Text className="font-mono-bold text-[10px] tracking-wide2 text-bg">
                   VALIDATION ENGINE V2.4
                 </Text>
               </View>
 
-              <Text className="text-[56px] font-black leading-[1.0] text-ink">
+              <Text
+                className="font-display text-[58px] leading-[58px] text-ink"
+                style={{ letterSpacing: -2 }}
+              >
                 STRESS{"\n"}TEST <Text className="text-accent">YOUR</Text>
                 {"\n"}IDEA
               </Text>
