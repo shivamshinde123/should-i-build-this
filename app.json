@@ -45,6 +45,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "supabaseUrl": "https://hexcsdactbhdkcmdrnzj.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhleGNzZGFjdGJoZGtjbWRybnpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTAzMzcsImV4cCI6MjA5MzM4NjMzN30.0983qPQ-aKankekobLuDG3o5SGEJZdXBkzkOrSOduP0",
+      "publicReportBaseUrl": "https://should-i-build-this.vercel.app"
     }
   }
 }

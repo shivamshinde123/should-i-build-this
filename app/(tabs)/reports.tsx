@@ -1,6 +1,8 @@
+import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
@@ -10,81 +12,51 @@ import { FinalRecommendationBar } from "@/components/final-recommendation-bar";
 import { MarketSizeBars } from "@/components/market-size-bars";
 import { type MetricCardProps } from "@/components/metric-card";
 import { MetricsGrid } from "@/components/metrics-grid";
+import { useReportSession } from "@/components/report-session-provider";
 import { ScoreDisplay } from "@/components/score-display";
 import { StrengthsVulnerabilities } from "@/components/strengths-vulnerabilities";
 import { ViewToggle, type ReportView } from "@/components/view-toggle";
 import { tokens } from "@/constants/theme";
-
-const REPORT = {
-  title: "ORBITAL SYNC",
-  description:
-    "High-precision cloud orchestration engine for distributed aerospace telemetry systems. Validated against current market latency and scalability benchmarks.",
-};
-
-const BUILDER_METRICS: MetricCardProps[] = [
-  { label: "OVERALL SCORE", value: "6.8", unit: "/10", progress: 0.68 },
-  { label: "EST. EFFORT", value: "HIGH", valueColor: "ink", subtitle: "~1,200 Engineering Hrs" },
-  {
-    label: "RISK LEVEL",
-    value: "ELEVATED",
-    valueColor: "danger",
-    subtitle: "Data Consistency Hazard",
-  },
-  { label: "MVP TIMELINE", value: "6-8 WKS", valueColor: "ink", subtitle: "To Alpha release" },
-];
-
-const INVESTOR_METRICS: MetricCardProps[] = [
-  {
-    label: "INVESTABILITY SCORE",
-    value: "6.5",
-    unit: "/10",
-    progress: 0.65,
-    icon: "trending-up",
-  },
-  {
-    label: "MARKET SIZE (TAM)",
-    value: "$12B",
-    subtitle: "Global Logistics Segment",
-    icon: "pie-chart-outline",
-  },
-  {
-    label: "DEFENSIBILITY",
-    value: "LOW",
-    valueColor: "ink",
-    subtitle: "Open Source Threats",
-    icon: "shield-outline",
-  },
-  {
-    label: "TRACTION GOAL",
-    value: "10 Pilots",
-    valueColor: "ink",
-    subtitle: "Q4 2024 Milestone",
-    icon: "locate-outline",
-  },
-];
-
-const CONCERNS: Concern[] = [
-  {
-    title: "LOW BARRIER TO ENTRY",
-    description:
-      "Multiple open-source alternatives are emerging in the orbital tracking space, potentially commoditizing the primary feature set.",
-  },
-  {
-    title: "REGULATORY RISK",
-    description:
-      "New space traffic management protocols pending in the EU could require massive architectural changes within 12 months.",
-  },
-  {
-    title: "SALES CYCLE",
-    description:
-      "Initial pilot feedback suggests 18-month sales cycles for Tier 1 satellite operators, exceeding current runway projections.",
-    severity: "info",
-  },
-];
+import {
+  sanitizeReportText,
+  toBuilderMetrics,
+  toConcerns,
+  toInvestorMetrics,
+  toMarketSizeBars,
+} from "@/lib/report-presentation";
+import type { AnalysisPayload } from "@/types/analysis";
 
 export default function ReportsScreen() {
+  const { session } = useReportSession();
   const [view, setView] = useState<ReportView>("builder");
   const [footerHeight, setFooterHeight] = useState(0);
+  const [copied, setCopied] = useState(false);
+
+  if (!session) {
+    return (
+      <SafeAreaView edges={["top"]} style={styles.safeArea}>
+        <AppHeader />
+        <View style={styles.emptyWrap}>
+          <Text style={styles.emptyLabel}>NO REPORT LOADED</Text>
+          <Text style={styles.emptyText}>
+            Run a stress test from the Validate tab to generate a live Builder and Investor report.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const report = session.report;
+  const builderMetrics = toBuilderMetrics(report);
+  const investorMetrics = toInvestorMetrics(report);
+  const concerns = toConcerns(report);
+  const marketBars = toMarketSizeBars(report);
+
+  const handleCopyShareLink = async () => {
+    await Clipboard.setStringAsync(session.shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -103,13 +75,39 @@ export default function ReportsScreen() {
                 <Text style={styles.analysisLabel}>ANALYSIS REPORT</Text>
                 <View style={styles.analysisLine} />
               </View>
-              <Text style={styles.reportTitle}>{REPORT.title}</Text>
-              <Text style={styles.reportDescription}>{REPORT.description}</Text>
+              <Text style={styles.reportTitle}>{sanitizeReportText(report.shared.title)}</Text>
+              <Text style={styles.reportDescription}>
+                {sanitizeReportText(report.shared.description)}
+              </Text>
+
+              <Pressable
+                onPress={handleCopyShareLink}
+                accessibilityRole="button"
+                accessibilityLabel="Copy share report link"
+                style={({ pressed }) => [
+                  styles.shareButton,
+                  pressed ? styles.shareButtonPressed : null,
+                ]}
+              >
+                <Ionicons name="copy-outline" size={14} color={tokens.accent} />
+                <Text style={styles.shareButtonLabel}>
+                  {copied ? "SHARE LINK COPIED" : "COPY SHARE LINK"}
+                </Text>
+              </Pressable>
             </View>
 
             <ViewToggle value={view} onChange={setView} />
 
-            {view === "builder" ? <BuilderView /> : <InvestorView />}
+            {view === "builder" ? (
+              <BuilderView report={report} metrics={builderMetrics} />
+            ) : (
+              <InvestorView
+                report={report}
+                metrics={investorMetrics}
+                concerns={concerns}
+                bars={marketBars}
+              />
+            )}
           </View>
         </ScrollView>
 
@@ -119,8 +117,8 @@ export default function ReportsScreen() {
             style={styles.footerWrap}
           >
             <FinalRecommendationBar
-              primaryLabel="INITIATE_BUILD"
-              secondaryLabel="PROCEED WITH REDUCED SCOPE"
+              primaryLabel={sanitizeReportText(report.builder_view.final_recommendation.primary)}
+              secondaryLabel={sanitizeReportText(report.builder_view.final_recommendation.secondary)}
             />
           </View>
         ) : null}
@@ -129,62 +127,70 @@ export default function ReportsScreen() {
   );
 }
 
-function BuilderView() {
+function BuilderView({
+  report,
+  metrics,
+}: {
+  report: AnalysisPayload;
+  metrics: MetricCardProps[];
+}) {
   return (
     <>
-      <MetricsGrid metrics={BUILDER_METRICS} layout="grid" />
+      <MetricsGrid metrics={metrics} layout="grid" />
 
       <CollapsibleSection number="01" title="PROBLEM CLARITY" defaultOpen>
         <View style={styles.sectionGap}>
           <Text style={styles.bodyText}>
-            The core problem addresses the massive sync latency between ground-station data
-            processing and cloud-based telemetry storage. Current solutions lag by &gt;500ms,
-            whereas Orbital Sync proposes a sub-50ms window using Edge-Native pre-processing.
+            {sanitizeReportText(report.builder_view.problem_clarity.summary)}
           </Text>
 
           <StrengthsVulnerabilities
-            strengths={[
-              "Identifiable high-value bottleneck.",
-              "Clear differentiation from incumbents.",
-            ]}
-            vulnerabilities={[
-              "High dependency on hardware API access.",
-              "Narrow target market (Enterprise focus).",
-            ]}
+            strengths={report.builder_view.problem_clarity.strengths.map(sanitizeReportText)}
+            vulnerabilities={report.builder_view.problem_clarity.vulnerabilities.map(
+              sanitizeReportText,
+            )}
           />
 
-          <ScoreDisplay label="Clarity Score" value="8.5" />
+          <ScoreDisplay
+            label="Clarity Score"
+            value={`${report.builder_view.problem_clarity.clarity_score}`}
+          />
         </View>
       </CollapsibleSection>
 
       <CollapsibleSection number="02" title="TECHNICAL FEASIBILITY">
         <Text style={styles.bodyText}>
-          Edge pre-processing architecture is feasible with existing hardware vendor APIs but
-          requires deep firmware-level optimization.
+          {sanitizeReportText(report.builder_view.technical_feasibility)}
         </Text>
       </CollapsibleSection>
 
       <CollapsibleSection number="03" title="LEARNING VALUE">
-        <Text style={styles.bodyText}>
-          High exposure to distributed systems, satellite telemetry pipelines, and edge compute
-          orchestration.
-        </Text>
+        <Text style={styles.bodyText}>{sanitizeReportText(report.builder_view.learning_value)}</Text>
       </CollapsibleSection>
 
       <CollapsibleSection number="04" title="APPROACHES TO BUILD">
         <Text style={styles.bodyText}>
-          Three viable paths: (1) Lean MVP with sandbox simulator, (2) pilot integration with one
-          Tier-2 partner, (3) full vertical-stack research prototype.
+          {sanitizeReportText(report.builder_view.approaches_to_build)}
         </Text>
       </CollapsibleSection>
     </>
   );
 }
 
-function InvestorView() {
+function InvestorView({
+  report,
+  metrics,
+  concerns,
+  bars,
+}: {
+  report: AnalysisPayload;
+  metrics: MetricCardProps[];
+  concerns: Concern[];
+  bars: { label: string; value: string; width: number }[];
+}) {
   return (
     <>
-      <MetricsGrid metrics={INVESTOR_METRICS} layout="stack" />
+      <MetricsGrid metrics={metrics} layout="stack" />
 
       <CollapsibleSection
         number="1."
@@ -193,25 +199,7 @@ function InvestorView() {
         defaultOpen
       >
         <View style={styles.sectionGap}>
-          <MarketSizeBars
-            bars={[
-              {
-                label: "TAM (TOTAL ADDRESSABLE MARKET)",
-                value: "$12,000,000,000",
-                width: 1.0,
-              },
-              {
-                label: "SAM (SERVICEABLE ADDRESSABLE MARKET)",
-                value: "$4,200,000,000",
-                width: 0.35,
-              },
-              {
-                label: "SOM (SERVICEABLE OBTAINABLE MARKET)",
-                value: "$850,000,000",
-                width: 0.07,
-              },
-            ]}
-          />
+          <MarketSizeBars bars={bars} />
 
           <View style={styles.targetCard}>
             <LinearGradient
@@ -221,7 +209,11 @@ function InvestorView() {
               style={styles.targetGradient}
             >
               <Text style={styles.targetCaption}>TARGET SECTOR</Text>
-              <Text style={styles.targetValue}>ORBITAL LOGISTICS</Text>
+              <Text style={styles.targetValue}>
+                {sanitizeReportText(
+                  report.investor_view.market_size_assessment.target_sector,
+                ).toUpperCase()}
+              </Text>
             </LinearGradient>
           </View>
         </View>
@@ -229,8 +221,7 @@ function InvestorView() {
 
       <CollapsibleSection number="2." title="DEFENSIBILITY MOATS" icon="shield-outline">
         <Text style={styles.bodyText}>
-          Initial moat is technical-differentiation only; patentability of edge sync algorithms is
-          contested.
+          {sanitizeReportText(report.investor_view.defensibility_moats)}
         </Text>
       </CollapsibleSection>
 
@@ -240,18 +231,17 @@ function InvestorView() {
         icon="trending-up-outline"
       >
         <Text style={styles.bodyText}>
-          10 paid pilots within 12 months at $80k-$120k ACV to reach Series-A readiness.
+          {sanitizeReportText(report.investor_view.traction_requirements)}
         </Text>
       </CollapsibleSection>
 
       <CollapsibleSection number="4." title="BUSINESS MODEL" icon="business-outline">
         <Text style={styles.bodyText}>
-          Tiered usage-based pricing with premium SLAs for Tier-1 operators; long-term licensing as
-          upsell.
+          {sanitizeReportText(report.investor_view.business_model)}
         </Text>
       </CollapsibleSection>
 
-      <CriticalConcerns concerns={CONCERNS} />
+      <CriticalConcerns concerns={concerns} />
     </>
   );
 }
@@ -300,6 +290,26 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
   },
+  shareButton: {
+    marginTop: 16,
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderWidth: 1,
+    borderColor: tokens.accent,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  shareButtonPressed: {
+    backgroundColor: "rgba(245, 200, 66, 0.08)",
+  },
+  shareButtonLabel: {
+    color: tokens.accent,
+    fontFamily: "SpaceMono_700Bold",
+    fontSize: 10,
+    letterSpacing: 1.2,
+  },
   footerWrap: {
     position: "absolute",
     left: 0,
@@ -337,5 +347,23 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_900Black",
     fontSize: 22,
     letterSpacing: 0.8,
+  },
+  emptyWrap: {
+    flex: 1,
+    justifyContent: "center",
+    gap: 12,
+    paddingHorizontal: 24,
+  },
+  emptyLabel: {
+    color: tokens.accent,
+    fontFamily: "SpaceMono_700Bold",
+    fontSize: 11,
+    letterSpacing: 1.2,
+  },
+  emptyText: {
+    color: tokens.inkMuted,
+    fontFamily: "Inter_400Regular",
+    fontSize: 14,
+    lineHeight: 22,
   },
 });
