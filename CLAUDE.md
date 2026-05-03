@@ -17,7 +17,7 @@ Canonical project notes live in the Obsidian vault at `Projects/Mobile Apps/Shou
 
 **Backend**
 - Supabase: Postgres (`reports` table) + Edge Functions (Deno) that proxy the Anthropic API so the key never ships to device. Auth deferred to v2.
-- Anthropic API: `claude-sonnet-4-6` with the `web_search_20250305` tool, prompt caching on the system prompt.
+- Anthropic API: Claude Sonnet 4 with the `web_search_20250305` tool, prompt caching on the system prompt. Current deployed snapshot: `claude-sonnet-4-20250514`.
 
 **Web report viewer (v1)**
 - Thin Next.js app at `/r/<slug>` for sharing reports to people without the app. Read-only, pulls JSON from Supabase by slug.
