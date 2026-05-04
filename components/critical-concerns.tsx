@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 export type Concern = {
   title: string;
@@ -14,7 +14,7 @@ export function CriticalConcerns({ concerns }: { concerns: Concern[] }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Ionicons name="warning" size={14} color={tokens.accent} />
-        <Text style={styles.title}>CRITICAL CONCERNS</Text>
+        <Text style={styles.title}>Critical concerns</Text>
       </View>
       <View style={styles.list}>
         {concerns.map((c) => {
@@ -45,9 +45,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: tokens.ink,
-    fontFamily: "Inter_700Bold",
-    fontSize: 11,
-    letterSpacing: 1.2,
+    ...typography.titleSans,
   },
   list: {
     gap: 8,
@@ -61,18 +59,18 @@ const styles = StyleSheet.create({
   concernHeader: {
     marginBottom: 8,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 8,
   },
   concernTitle: {
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 10,
-    letterSpacing: 1.2,
+    flex: 1,
+    minWidth: 0,
+    flexShrink: 1,
+    ...typography.eyebrowStrong,
   },
   description: {
+    flexShrink: 1,
     color: tokens.inkMuted,
-    fontFamily: "Inter_400Regular",
-    fontSize: 12,
-    lineHeight: 16,
+    ...typography.bodyCompact,
   },
 });

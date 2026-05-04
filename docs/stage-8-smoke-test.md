@@ -14,8 +14,7 @@ Happy path:
 2. Start analysis
 3. Wait for loading/synthesizing
 4. Verify Builder and Investor report views render
-5. Copy the share link
-6. Open the `/r/<slug>` web viewer and confirm the same report loads
+5. Confirm the report content is complete and readable
 
 ## Current repo setup
 
@@ -113,7 +112,6 @@ Verify:
 - Validate form accepts input
 - analyze request succeeds
 - Reports tab renders Builder and Investor content
-- share link copies and opens the correct web viewer route
 
 ### iOS simulator
 

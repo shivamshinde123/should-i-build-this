@@ -1,11 +1,8 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
-import { buildPublicReportUrl } from "@/constants/runtime";
 import type { AnalyzeResponse } from "@/types/analysis";
 
-type ReportSession = AnalyzeResponse & {
-  shareUrl: string;
-};
+type ReportSession = AnalyzeResponse;
 
 type ReportSessionContextValue = {
   session: ReportSession | null;
@@ -22,10 +19,7 @@ export function ReportSessionProvider({ children }: { children: ReactNode }) {
     () => ({
       session,
       setSession: (response) => {
-        setSessionState({
-          ...response,
-          shareUrl: buildPublicReportUrl(response.slug),
-        });
+        setSessionState(response);
       },
       clearSession: () => setSessionState(null),
     }),

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, ViewStyle } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 type Variant = "solid" | "outline";
 
@@ -57,9 +57,10 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   label: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 12,
-    letterSpacing: 1.2,
+    flexShrink: 1,
+    minWidth: 0,
+    ...typography.buttonLabel,
+    textAlign: "center",
   },
   disabledSolid: {
     backgroundColor: tokens.accentDim,

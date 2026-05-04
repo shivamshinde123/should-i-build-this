@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 export type MetricCardProps = {
   label: string;
@@ -32,7 +32,7 @@ export function MetricCard({
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.label} numberOfLines={1}>{label}</Text>
+        <Text style={styles.label}>{label}</Text>
         {icon ? <Ionicons name={icon} size={14} color={tokens.accent} /> : null}
       </View>
       <View style={styles.valueRow}>
@@ -47,7 +47,7 @@ export function MetricCard({
         </View>
       ) : null}
       {subtitle ? (
-        <Text style={styles.subtitle} numberOfLines={2}>{subtitle.toUpperCase()}</Text>
+        <Text style={styles.subtitle}>{subtitle}</Text>
       ) : null}
     </View>
   );
@@ -65,25 +65,25 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 8,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
+    gap: 8,
   },
   label: {
     flex: 1,
+    minWidth: 0,
+    flexShrink: 1,
     color: tokens.inkMuted,
-    fontFamily: "SpaceMono_400Regular",
-    fontSize: 9,
-    letterSpacing: 1.2,
+    ...typography.eyebrow,
   },
   valueRow: {
     flexDirection: "row",
     alignItems: "flex-end",
+    flexWrap: "wrap",
     gap: 4,
   },
   value: {
-    fontFamily: "Inter_900Black",
-    fontSize: 28,
-    lineHeight: 32,
+    ...typography.cardValue,
   },
   accent: {
     color: tokens.accent,
@@ -96,8 +96,9 @@ const styles = StyleSheet.create({
   },
   unit: {
     color: tokens.inkDim,
-    fontFamily: "SpaceMono_400Regular",
-    fontSize: 12,
+    ...typography.titleMono,
+    fontSize: 11,
+    lineHeight: 16,
   },
   track: {
     marginTop: 8,
@@ -111,9 +112,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginTop: 8,
+    flexShrink: 1,
     color: tokens.inkDim,
-    fontFamily: "SpaceMono_400Regular",
-    fontSize: 9,
-    letterSpacing: 1.2,
+    ...typography.eyebrow,
   },
 });

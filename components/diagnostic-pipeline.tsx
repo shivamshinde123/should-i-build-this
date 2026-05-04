@@ -9,7 +9,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 type Status = "pass" | "syncing" | "wait";
 
@@ -17,7 +17,7 @@ const STEPS = [
   "Consulting engineers...",
   "Checking market...",
   "Assessing feasibility...",
-  "Calculating ROI...",
+  "Calculating business viability...",
 ] as const;
 
 const FRAMES: Status[][] = [
@@ -45,9 +45,9 @@ export function DiagnosticPipeline() {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>DIAGNOSTIC PIPELINE</Text>
+        <Text style={styles.title}>Diagnostic pipeline</Text>
         <Text style={styles.status}>
-          STATUS: <Text style={styles.statusAccent}>ACTIVE</Text>
+          Status: <Text style={styles.statusAccent}>Active</Text>
         </Text>
       </View>
       <View style={styles.list}>
@@ -106,9 +106,9 @@ function SpinnerIcon() {
 }
 
 const BADGE = {
-  pass: { label: "PASS", color: tokens.accent, border: tokens.accent },
-  syncing: { label: "SYNCING", color: tokens.inkMuted, border: tokens.inkMuted },
-  wait: { label: "WAIT", color: tokens.inkFaint, border: tokens.inkFaint },
+  pass: { label: "Ready", color: tokens.accent, border: tokens.accent },
+  syncing: { label: "Running", color: tokens.inkMuted, border: tokens.inkMuted },
+  wait: { label: "Queued", color: tokens.inkFaint, border: tokens.inkFaint },
 } as const;
 
 function StatusBadge({ status }: { status: Status }) {
@@ -130,23 +130,24 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 16,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     borderBottomWidth: 1,
     borderBottomColor: tokens.hairline,
+    gap: 12,
     paddingBottom: 12,
   },
   title: {
+    flex: 1,
+    minWidth: 0,
+    flexShrink: 1,
     color: tokens.ink,
-    fontFamily: "Inter_500Medium",
-    fontSize: 11,
-    letterSpacing: 1.2,
+    ...typography.titleMono,
   },
   status: {
+    flexShrink: 0,
     color: tokens.inkMuted,
-    fontFamily: "SpaceMono_400Regular",
-    fontSize: 10,
-    letterSpacing: 1.2,
+    ...typography.eyebrow,
   },
   statusAccent: {
     color: tokens.accent,
@@ -156,17 +157,22 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
+    gap: 12,
   },
   rowLeft: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 12,
   },
   rowText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 13,
+    flex: 1,
+    minWidth: 0,
+    flexShrink: 1,
+    ...typography.body,
   },
   waitText: {
     color: tokens.inkFaint,
@@ -176,12 +182,11 @@ const styles = StyleSheet.create({
   },
   badge: {
     borderWidth: 1,
+    alignSelf: "flex-start",
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
   badgeText: {
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 10,
-    letterSpacing: 1.2,
+    ...typography.eyebrowStrong,
   },
 });

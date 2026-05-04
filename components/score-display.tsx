@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Text, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 type Props = {
   label: string;
@@ -40,14 +40,10 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 4,
     color: tokens.accent,
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 10,
-    letterSpacing: 1.2,
+    ...typography.eyebrowStrong,
   },
   value: {
     color: tokens.ink,
-    fontFamily: "Inter_900Black",
-    fontSize: 40,
-    lineHeight: 44,
+    ...typography.sectionValue,
   },
 });

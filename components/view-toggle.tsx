@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 export type ReportView = "builder" | "investor";
 
@@ -16,12 +16,12 @@ export function ViewToggle({ value, onChange }: Props) {
       style={styles.container}
     >
       <Toggle
-        label="BUILDER"
+        label="Builder"
         active={value === "builder"}
         onPress={() => onChange("builder")}
       />
       <Toggle
-        label="INVESTOR"
+        label="Investor"
         active={value === "investor"}
         onPress={() => onChange("investor")}
       />
@@ -63,15 +63,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    minWidth: 0,
+    paddingHorizontal: 8,
     paddingVertical: 10,
   },
   activeTab: {
     backgroundColor: tokens.accent,
   },
   label: {
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 11,
-    letterSpacing: 1.2,
+    ...typography.titleSans,
+    textAlign: "center",
   },
   activeLabel: {
     color: tokens.bg,

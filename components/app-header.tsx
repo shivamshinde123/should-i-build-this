@@ -1,14 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 export function AppHeader() {
   return (
     <View style={styles.container}>
       <View style={styles.left}>
         <Ionicons name="terminal-sharp" size={16} color={tokens.accent} />
-        <Text style={styles.title}>SHOULD I BUILD THIS?</Text>
+        <Text style={styles.title}>Should I Build This?</Text>
       </View>
       <View style={styles.avatar}>
         <Ionicons name="person" size={12} color={tokens.accent} />
@@ -22,22 +22,27 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: tokens.hairline,
   },
   left: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     flexShrink: 1,
   },
   title: {
+    flex: 1,
+    minWidth: 0,
     color: tokens.accent,
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 12,
-    letterSpacing: 1.5,
+    ...typography.titleMono,
+    fontSize: 11,
+    lineHeight: 16,
     flexShrink: 1,
   },
   avatar: {

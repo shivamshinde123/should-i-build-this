@@ -80,6 +80,12 @@ Output schema:
 
 type Severity = "warn" | "info";
 
+type SourceCitation = {
+  title: string;
+  url: string;
+  citedText?: string;
+};
+
 type AnalysisPayload = {
   builder_view: {
     overall_score: number;
@@ -213,6 +219,7 @@ Deno.serve(async (req) => {
 
   const anthropicJson = await anthropicResponse.json();
   const responseText = extractTextFromAnthropicResponse(anthropicJson);
+  const sources = extractSourceCitations(anthropicJson);
 
   if (!responseText) {
     return jsonResponse({ error: "Anthropic returned no text response." }, 502);
@@ -260,7 +267,6 @@ Deno.serve(async (req) => {
     background_text: backgroundText || null,
     builder_view: analysis.builder_view,
     investor_view: analysis.investor_view,
-    shared_view: analysis.shared,
     model: ANTHROPIC_MODEL,
     user_id: userId,
   };
@@ -280,6 +286,7 @@ Deno.serve(async (req) => {
     slug: insertResult.slug,
     report: analysis,
     model: ANTHROPIC_MODEL,
+    sources,
   });
 });
 
@@ -298,6 +305,46 @@ function extractTextFromAnthropicResponse(payload: any): string {
     .map((block: any) => block.text)
     .join("\n")
     .trim();
+}
+
+function extractSourceCitations(payload: any): SourceCitation[] {
+  if (!Array.isArray(payload?.content)) return [];
+
+  const deduped = new Map<string, SourceCitation>();
+
+  for (const block of payload.content) {
+    if (block?.type === "text" && Array.isArray(block.citations)) {
+      for (const citation of block.citations) {
+        if (typeof citation?.url !== "string" || typeof citation?.title !== "string") continue;
+        const key = citation.url.trim();
+        if (!key) continue;
+
+        deduped.set(key, {
+          title: citation.title.trim() || citation.url,
+          url: citation.url,
+          citedText:
+            typeof citation.cited_text === "string" && citation.cited_text.trim().length > 0
+              ? citation.cited_text.trim()
+              : deduped.get(key)?.citedText,
+        });
+      }
+    }
+
+    if (block?.type === "web_search_tool_result" && Array.isArray(block.content)) {
+      for (const result of block.content) {
+        if (typeof result?.url !== "string" || typeof result?.title !== "string") continue;
+        const key = result.url.trim();
+        if (!key || deduped.has(key)) continue;
+
+        deduped.set(key, {
+          title: result.title.trim() || result.url,
+          url: result.url,
+        });
+      }
+    }
+  }
+
+  return Array.from(deduped.values()).slice(0, 8);
 }
 
 function stripJsonFences(input: string): string {
@@ -423,7 +470,6 @@ async function insertReportWithUniqueSlug(
     background_text: string | null;
     builder_view: AnalysisPayload["builder_view"];
     investor_view: AnalysisPayload["investor_view"];
-    shared_view: AnalysisPayload["shared"];
     model: string;
     user_id: string | null;
   }, "slug">,

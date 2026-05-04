@@ -1,5 +1,5 @@
 import { runtimeConfig } from "@/constants/runtime";
-import type { AnalyzeRequest, AnalyzeResponse } from "@/types/analysis";
+import type { AnalyzeRequest, AnalyzeResponse, SourceCitation } from "@/types/analysis";
 
 type AnalyzeErrorBody = {
   error?: string;
@@ -32,7 +32,12 @@ export async function invokeAnalyze(
     throw new Error("Analysis response was malformed.");
   }
 
-  return json as AnalyzeResponse;
+  return {
+    ...(json as Omit<AnalyzeResponse, "sources">),
+    sources: Array.isArray((json as { sources?: unknown }).sources)
+      ? ((json as { sources: SourceCitation[] }).sources ?? [])
+      : [],
+  };
 }
 
 function isAnalyzeErrorBody(value: unknown): value is AnalyzeErrorBody {

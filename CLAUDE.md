@@ -19,16 +19,12 @@ Canonical project notes live in the Obsidian vault at `Projects/Mobile Apps/Shou
 - Supabase: Postgres (`reports` table) + Edge Functions (Deno) that proxy the Anthropic API so the key never ships to device. Auth deferred to v2.
 - Anthropic API: Claude Sonnet 4 with the `web_search_20250305` tool, prompt caching on the system prompt. Current deployed snapshot: `claude-sonnet-4-20250514`.
 
-**Web report viewer (v1)**
-- Thin Next.js app at `/r/<slug>` for sharing reports to people without the app. Read-only, pulls JSON from Supabase by slug.
-
 ## Data flow
 
 1. User submits idea → app POSTs to Supabase Edge Function `/analyze`.
 2. Edge Function calls Anthropic API with system prompt + idea + web search tool.
 3. Edge Function inserts the full report into `reports`, returns the slug.
-4. App renders report from local state; share button copies `/r/<slug>` URL.
-5. Web viewer fetches by slug and renders read-only.
+4. App renders report from local state.
 
 v1 default: single completion response with a fun loading screen. Streaming is a v2 consideration.
 
@@ -60,7 +56,7 @@ Problem Clarity and Market Landscape are shared across both views. Final report 
 
 ## v1 scope (weekend ship — target 2026-05-04)
 
-Idea input screen → loading screen → Builder View report → save → share link → thin web viewer. **No** Investor View, founder-market fit, or auth in v1.
+Idea input screen → loading screen → Builder View report → save. **No** Investor View, founder-market fit, or auth in v1.
 
 ## Design
 

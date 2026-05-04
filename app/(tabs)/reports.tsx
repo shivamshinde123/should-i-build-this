@@ -1,8 +1,6 @@
-import { Ionicons } from "@expo/vector-icons";
-import * as Clipboard from "expo-clipboard";
-import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
@@ -14,9 +12,10 @@ import { type MetricCardProps } from "@/components/metric-card";
 import { MetricsGrid } from "@/components/metrics-grid";
 import { useReportSession } from "@/components/report-session-provider";
 import { ScoreDisplay } from "@/components/score-display";
+import { SourceCitations } from "@/components/source-citations";
 import { StrengthsVulnerabilities } from "@/components/strengths-vulnerabilities";
 import { ViewToggle, type ReportView } from "@/components/view-toggle";
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 import {
   sanitizeReportText,
   toBuilderMetrics,
@@ -29,15 +28,13 @@ import type { AnalysisPayload } from "@/types/analysis";
 export default function ReportsScreen() {
   const { session } = useReportSession();
   const [view, setView] = useState<ReportView>("builder");
-  const [footerHeight, setFooterHeight] = useState(0);
-  const [copied, setCopied] = useState(false);
 
   if (!session) {
     return (
       <SafeAreaView edges={["top"]} style={styles.safeArea}>
         <AppHeader />
         <View style={styles.emptyWrap}>
-          <Text style={styles.emptyLabel}>NO REPORT LOADED</Text>
+          <Text style={styles.emptyLabel}>No report loaded</Text>
           <Text style={styles.emptyText}>
             Run a stress test from the Validate tab to generate a live Builder and Investor report.
           </Text>
@@ -47,17 +44,11 @@ export default function ReportsScreen() {
   }
 
   const report = session.report;
+  const sources = session.sources;
   const builderMetrics = toBuilderMetrics(report);
   const investorMetrics = toInvestorMetrics(report);
   const concerns = toConcerns(report);
   const marketBars = toMarketSizeBars(report);
-
-  const handleCopyShareLink = async () => {
-    await Clipboard.setStringAsync(session.shareUrl);
-    setCopied(true);
-    AccessibilityInfo.announceForAccessibility("Share link copied to clipboard.");
-    setTimeout(() => setCopied(false), 1800);
-  };
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -66,35 +57,18 @@ export default function ReportsScreen() {
         <ScrollView
           style={styles.flex}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: (view === "builder" ? footerHeight : 0) + 32,
-          }}
+          contentContainerStyle={{ paddingBottom: 32 }}
         >
           <View style={styles.content}>
             <View>
               <View style={styles.analysisRow}>
-                <Text style={styles.analysisLabel}>ANALYSIS REPORT</Text>
+                <Text style={styles.analysisLabel}>Analysis report</Text>
                 <View style={styles.analysisLine} />
               </View>
               <Text style={styles.reportTitle}>{sanitizeReportText(report.shared.title)}</Text>
               <Text style={styles.reportDescription}>
                 {sanitizeReportText(report.shared.description)}
               </Text>
-
-              <Pressable
-                onPress={handleCopyShareLink}
-                accessibilityRole="button"
-                accessibilityLabel={copied ? "Share link copied" : "Copy share report link"}
-                style={({ pressed }) => [
-                  styles.shareButton,
-                  pressed ? styles.shareButtonPressed : null,
-                ]}
-              >
-                <Ionicons name="copy-outline" size={14} color={tokens.accent} />
-                <Text style={styles.shareButtonLabel}>
-                  {copied ? "SHARE LINK COPIED" : "COPY SHARE LINK"}
-                </Text>
-              </Pressable>
             </View>
 
             <ViewToggle value={view} onChange={setView} />
@@ -109,20 +83,10 @@ export default function ReportsScreen() {
                 bars={marketBars}
               />
             )}
+
+            <SourceCitations sources={sources} />
           </View>
         </ScrollView>
-
-        {view === "builder" ? (
-          <View
-            onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
-            style={styles.footerWrap}
-          >
-            <FinalRecommendationBar
-              primaryLabel={sanitizeReportText(report.builder_view.final_recommendation.primary)}
-              secondaryLabel={sanitizeReportText(report.builder_view.final_recommendation.secondary)}
-            />
-          </View>
-        ) : null}
       </View>
     </SafeAreaView>
   );
@@ -139,7 +103,7 @@ function BuilderView({
     <>
       <MetricsGrid metrics={metrics} layout="grid" />
 
-      <CollapsibleSection number="01" title="PROBLEM CLARITY" defaultOpen>
+      <CollapsibleSection number="01" title="Problem clarity" defaultOpen>
         <View style={styles.sectionGap}>
           <Text style={styles.bodyText}>
             {sanitizeReportText(report.builder_view.problem_clarity.summary)}
@@ -159,21 +123,26 @@ function BuilderView({
         </View>
       </CollapsibleSection>
 
-      <CollapsibleSection number="02" title="TECHNICAL FEASIBILITY">
+      <CollapsibleSection number="02" title="Technical feasibility">
         <Text style={styles.bodyText}>
           {sanitizeReportText(report.builder_view.technical_feasibility)}
         </Text>
       </CollapsibleSection>
 
-      <CollapsibleSection number="03" title="LEARNING VALUE">
+      <CollapsibleSection number="03" title="Learning value">
         <Text style={styles.bodyText}>{sanitizeReportText(report.builder_view.learning_value)}</Text>
       </CollapsibleSection>
 
-      <CollapsibleSection number="04" title="APPROACHES TO BUILD">
+      <CollapsibleSection number="04" title="Approaches to build">
         <Text style={styles.bodyText}>
           {sanitizeReportText(report.builder_view.approaches_to_build)}
         </Text>
       </CollapsibleSection>
+
+      <FinalRecommendationBar
+        primaryLabel={sanitizeReportText(report.builder_view.final_recommendation.primary)}
+        secondaryLabel={sanitizeReportText(report.builder_view.final_recommendation.secondary)}
+      />
     </>
   );
 }
@@ -195,7 +164,7 @@ function InvestorView({
 
       <CollapsibleSection
         number="1."
-        title="MARKET SIZE ASSESSMENT"
+        title="Market size assessment"
         icon="bar-chart-outline"
         defaultOpen
       >
@@ -209,18 +178,16 @@ function InvestorView({
               end={{ x: 0.5, y: 1 }}
               style={styles.targetGradient}
             >
-              <Text style={styles.targetCaption}>TARGET SECTOR</Text>
+              <Text style={styles.targetCaption}>Target sector</Text>
               <Text style={styles.targetValue}>
-                {sanitizeReportText(
-                  report.investor_view.market_size_assessment.target_sector,
-                ).toUpperCase()}
+                {sanitizeReportText(report.investor_view.market_size_assessment.target_sector)}
               </Text>
             </LinearGradient>
           </View>
         </View>
       </CollapsibleSection>
 
-      <CollapsibleSection number="2." title="DEFENSIBILITY MOATS" icon="shield-outline">
+      <CollapsibleSection number="2." title="Defensibility moats" icon="shield-outline">
         <Text style={styles.bodyText}>
           {sanitizeReportText(report.investor_view.defensibility_moats)}
         </Text>
@@ -228,7 +195,7 @@ function InvestorView({
 
       <CollapsibleSection
         number="3."
-        title="TRACTION REQUIREMENTS"
+        title="Traction requirements"
         icon="trending-up-outline"
       >
         <Text style={styles.bodyText}>
@@ -236,7 +203,7 @@ function InvestorView({
         </Text>
       </CollapsibleSection>
 
-      <CollapsibleSection number="4." title="BUSINESS MODEL" icon="business-outline">
+      <CollapsibleSection number="4." title="Business model" icon="business-outline">
         <Text style={styles.bodyText}>
           {sanitizeReportText(report.investor_view.business_model)}
         </Text>
@@ -267,9 +234,7 @@ const styles = StyleSheet.create({
   },
   analysisLabel: {
     color: tokens.inkMuted,
-    fontFamily: "SpaceMono_400Regular",
-    fontSize: 10,
-    letterSpacing: 1.2,
+    ...typography.eyebrow,
   },
   analysisLine: {
     height: 1,
@@ -279,52 +244,20 @@ const styles = StyleSheet.create({
   reportTitle: {
     marginTop: 12,
     color: tokens.ink,
-    fontFamily: "Inter_500Medium",
-    fontSize: 24,
-    lineHeight: 26,
+    ...typography.reportTitle,
   },
   reportDescription: {
     marginTop: 12,
     maxWidth: 330,
     color: tokens.inkMuted,
-    fontFamily: "Inter_400Regular",
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  shareButton: {
-    marginTop: 16,
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderColor: tokens.accent,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  shareButtonPressed: {
-    backgroundColor: "rgba(245, 200, 66, 0.08)",
-  },
-  shareButtonLabel: {
-    color: tokens.accent,
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 10,
-    letterSpacing: 1.2,
-  },
-  footerWrap: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...typography.bodyCompact,
   },
   sectionGap: {
     gap: 16,
   },
   bodyText: {
     color: tokens.inkMuted,
-    fontFamily: "Inter_400Regular",
-    fontSize: 12,
-    lineHeight: 18,
+    ...typography.body,
   },
   targetCard: {
     overflow: "hidden",
@@ -338,16 +271,16 @@ const styles = StyleSheet.create({
   },
   targetCaption: {
     color: tokens.inkDim,
-    fontFamily: "SpaceMono_400Regular",
-    fontSize: 10,
-    letterSpacing: 1.2,
+    ...typography.eyebrow,
   },
   targetValue: {
     marginTop: 8,
     color: tokens.accent,
-    fontFamily: "Inter_900Black",
-    fontSize: 22,
-    letterSpacing: 0.8,
+    ...typography.sectionValue,
+    fontSize: 28,
+    lineHeight: 32,
+    letterSpacing: 0.4,
+    textAlign: "center",
   },
   emptyWrap: {
     flex: 1,
@@ -357,14 +290,10 @@ const styles = StyleSheet.create({
   },
   emptyLabel: {
     color: tokens.accent,
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 11,
-    letterSpacing: 1.2,
+    ...typography.eyebrowStrong,
   },
   emptyText: {
     color: tokens.inkMuted,
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
-    lineHeight: 22,
+    ...typography.body,
   },
 });

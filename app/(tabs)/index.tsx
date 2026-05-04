@@ -14,12 +14,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
 import { LoadingView } from "@/components/loading-view";
-import { MarketSentimentCard } from "@/components/market-sentiment-card";
-import { NeuralEngineCard } from "@/components/neural-engine-card";
 import { useReportSession } from "@/components/report-session-provider";
 import { SectionCard } from "@/components/section-card";
-import { TerminalLogs } from "@/components/terminal-logs";
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 import { invokeAnalyze } from "@/lib/analyze-client";
 
 export default function ValidateScreen() {
@@ -93,12 +90,11 @@ export default function ValidateScreen() {
           >
             <View style={styles.content}>
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>VALIDATION ENGINE V2.4</Text>
+                <Text style={styles.badgeText}>Validation engine v2.4</Text>
               </View>
 
               <Text style={styles.hero}>
-                STRESS{"\n"}TEST <Text style={styles.heroAccent}>YOUR</Text>
-                {"\n"}IDEA
+                Stress test{"\n"}your <Text style={styles.heroAccent}>idea</Text>
               </Text>
 
               <Text style={styles.subtitle}>
@@ -108,7 +104,7 @@ export default function ValidateScreen() {
 
               <SectionCard
                 number="01"
-                title="THE CONCEPT"
+                title="The concept"
                 required
                 value={concept}
                 onChangeText={setConcept}
@@ -118,7 +114,7 @@ export default function ValidateScreen() {
 
               <SectionCard
                 number="02"
-                title="FOUNDER BACKGROUND"
+                title="Founder background"
                 required
                 value={background}
                 onChangeText={setBackground}
@@ -128,7 +124,7 @@ export default function ValidateScreen() {
 
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="STRESS TEST THIS"
+                accessibilityLabel="Stress test this"
                 accessibilityState={{ disabled: !canSubmit }}
                 disabled={!canSubmit}
                 onPress={handleStressTestPress}
@@ -143,18 +139,12 @@ export default function ValidateScreen() {
                     ]}
                   >
                     <Ionicons name="flash" size={16} color={tokens.bg} />
-                    <Text style={styles.ctaLabel}>STRESS TEST THIS</Text>
+                    <Text style={styles.ctaLabel}>Stress test this</Text>
                   </View>
                 )}
               </Pressable>
 
               {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-              <MarketSentimentCard />
-
-              <TerminalLogs />
-
-              <NeuralEngineCard />
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -185,16 +175,11 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: tokens.accent,
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 10,
-    letterSpacing: 1.2,
+    ...typography.eyebrowStrong,
   },
   hero: {
     color: tokens.ink,
-    fontFamily: "Inter_900Black",
-    fontSize: 58,
-    lineHeight: 58,
-    letterSpacing: -2,
+    ...typography.hero,
   },
   heroAccent: {
     color: tokens.accent,
@@ -202,9 +187,7 @@ const styles = StyleSheet.create({
   subtitle: {
     maxWidth: 320,
     color: tokens.inkMuted,
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
-    lineHeight: 20,
+    ...typography.body,
   },
   ctaPressable: {
     width: "100%",
@@ -232,14 +215,10 @@ const styles = StyleSheet.create({
   ctaLabel: {
     marginLeft: 10,
     color: tokens.bg,
-    fontFamily: "Inter_700Bold",
-    fontSize: 12,
-    letterSpacing: 0.8,
+    ...typography.buttonLabel,
   },
   errorText: {
     color: "#fca5a5",
-    fontFamily: "Inter_400Regular",
-    fontSize: 12,
-    lineHeight: 18,
+    ...typography.bodyCompact,
   },
 });

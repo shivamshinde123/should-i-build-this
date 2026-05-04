@@ -1,12 +1,12 @@
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useEffect } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
+  withSequence,
   withTiming,
 } from "react-native-reanimated";
 
@@ -16,132 +16,210 @@ type Props = {
   size?: number;
 };
 
-export function SynthesizingRadar({ size = 260 }: Props) {
-  const rotation = useSharedValue(0);
+const DOTS = [
+  { x: 0.2, y: 0.22, size: 4, glow: true },
+  { x: 0.7, y: 0.18, size: 6, glow: true },
+  { x: 0.33, y: 0.58, size: 4, glow: false },
+  { x: 0.78, y: 0.56, size: 5, glow: false },
+  { x: 0.58, y: 0.72, size: 4, glow: false },
+  { x: 0.48, y: 0.36, size: 3, glow: false },
+];
+
+export function SynthesizingRadar({ size = 280 }: Props) {
+  const pulse = useSharedValue(0);
+  const orbit = useSharedValue(0);
 
   useEffect(() => {
-    rotation.value = withRepeat(
-      withTiming(360, { duration: 4000, easing: Easing.linear }),
+    pulse.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1800, easing: Easing.inOut(Easing.quad) }),
+        withTiming(0, { duration: 1800, easing: Easing.inOut(Easing.quad) }),
+      ),
       -1,
       false,
     );
-  }, [rotation]);
 
-  const armStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
+    orbit.value = withRepeat(withTiming(1, { duration: 3600, easing: Easing.linear }), -1, false);
+  }, [orbit, pulse]);
+
+  const pulseRingStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(pulse.value, [0, 1], [0.72, 1.02]) }],
+    opacity: interpolate(pulse.value, [0, 0.6, 1], [0.2, 0.45, 0.18]),
   }));
 
-  const ring = (pct: number) => ({
-    position: "absolute" as const,
-    width: size * pct,
-    height: size * pct,
-    borderRadius: (size * pct) / 2,
-    borderWidth: 1,
-    borderColor: tokens.border,
-  });
+  const centerGlowStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(pulse.value, [0, 1], [0.9, 1.08]) }],
+    opacity: interpolate(pulse.value, [0, 1], [0.35, 0.72]),
+  }));
+
+  const sweepStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${interpolate(orbit.value, [0, 1], [0, 360])}deg` }],
+  }));
 
   return (
-    <View style={{ width: size, height: size }} className="items-center justify-center">
-      <View style={ring(1)} />
-      <View style={ring(0.66)} />
-      <View style={ring(0.33)} />
+    <View style={[styles.frame, { width: size, height: size }]}>
+      <View
+        style={[
+          styles.ring,
+          { width: size, height: size, borderRadius: size / 2, borderColor: "#2b2b30" },
+        ]}
+      />
+      <View
+        style={[
+          styles.ring,
+          {
+            width: size * 0.7,
+            height: size * 0.7,
+            borderRadius: (size * 0.7) / 2,
+            borderColor: "#26262b",
+          },
+        ]}
+      />
+      <View
+        style={[
+          styles.ring,
+          {
+            width: size * 0.4,
+            height: size * 0.4,
+            borderRadius: (size * 0.4) / 2,
+            borderColor: "#222227",
+          },
+        ]}
+      />
 
-      <View
-        style={{
-          position: "absolute",
-          width: size,
-          height: 1,
-          backgroundColor: tokens.hairline,
-        }}
-      />
-      <View
-        style={{
-          position: "absolute",
-          width: 1,
-          height: size,
-          backgroundColor: tokens.hairline,
-        }}
+      <Animated.View
+        style={[
+          styles.ring,
+          {
+            width: size * 0.88,
+            height: size * 0.88,
+            borderRadius: (size * 0.88) / 2,
+            borderColor: "rgba(245, 200, 66, 0.42)",
+          },
+          pulseRingStyle,
+        ]}
       />
 
-      <View
-        style={{
-          position: "absolute",
-          top: size * 0.16,
-          left: size * 0.7,
-          width: 6,
-          height: 6,
-          borderRadius: 3,
-          backgroundColor: tokens.accentGlow,
-          shadowColor: tokens.accent,
-          shadowOpacity: 1,
-          shadowRadius: 4,
-        }}
-      />
-      <View
-        style={{
-          position: "absolute",
-          top: size * 0.58,
-          left: size * 0.3,
-          width: 4,
-          height: 4,
-          borderRadius: 2,
-          backgroundColor: tokens.accent,
-          opacity: 0.6,
-        }}
-      />
+      <View style={[styles.axisHorizontal, { width: size * 0.92 }]} />
+      <View style={[styles.axisVertical, { height: size * 0.92 }]} />
 
       <Animated.View
         pointerEvents="none"
         style={[
-          {
-            position: "absolute",
-            width: size,
-            height: size,
-            alignItems: "center",
-            justifyContent: "center",
-          },
-          armStyle,
+          styles.sweepWrap,
+          { width: size, height: size, borderRadius: size / 2 },
+          sweepStyle,
         ]}
       >
-        <LinearGradient
-          colors={[tokens.accent, "rgba(245,200,66,0)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{
-            position: "absolute",
-            top: size / 2 - 3,
-            left: size / 2,
-            width: size / 2,
-            height: 6,
-          }}
-        />
-        <LinearGradient
-          colors={["rgba(245,200,66,0.25)", "rgba(245,200,66,0)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{
-            position: "absolute",
-            top: size / 2 - 60,
-            left: size / 2,
-            width: size / 2,
-            height: 60,
-          }}
+        <View
+          style={[
+            styles.sweepArm,
+            {
+              width: size * 0.42,
+              left: size / 2,
+              top: size / 2 - 1,
+            },
+          ]}
         />
       </Animated.View>
 
+      {DOTS.map((dot, index) => (
+        <View
+          key={`${dot.x}-${dot.y}-${index}`}
+          style={[
+            styles.dot,
+            {
+              width: dot.size,
+              height: dot.size,
+              borderRadius: dot.size / 2,
+              left: size * dot.x - dot.size / 2,
+              top: size * dot.y - dot.size / 2,
+              opacity: dot.glow ? 1 : 0.8,
+            },
+            dot.glow ? styles.glowDot : null,
+          ]}
+        />
+      ))}
+
+      <Animated.View
+        style={[
+          styles.centerGlow,
+          {
+            width: size * 0.16,
+            height: size * 0.16,
+            borderRadius: (size * 0.16) / 2,
+          },
+          centerGlowStyle,
+        ]}
+      />
       <View
-        className="items-center justify-center rounded-full border border-accent"
-        style={{
-          width: 60,
-          height: 60,
-          backgroundColor: tokens.bg,
-          shadowColor: tokens.accent,
-          shadowOpacity: 0.6,
-          shadowRadius: 8,
-        }}
-      >
-        <Ionicons name="analytics" size={22} color={tokens.accent} />
-      </View>
+        style={[
+          styles.centerCore,
+          {
+            width: size * 0.08,
+            height: size * 0.08,
+            borderRadius: (size * 0.08) / 2,
+          },
+        ]}
+      />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  frame: {
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+  },
+  ring: {
+    position: "absolute",
+    borderWidth: 1,
+    backgroundColor: "transparent",
+  },
+  axisHorizontal: {
+    position: "absolute",
+    height: 1,
+    backgroundColor: "#19191d",
+  },
+  axisVertical: {
+    position: "absolute",
+    width: 1,
+    backgroundColor: "#19191d",
+  },
+  sweepWrap: {
+    position: "absolute",
+  },
+  sweepArm: {
+    position: "absolute",
+    height: 2,
+    backgroundColor: tokens.accent,
+    shadowColor: tokens.accent,
+    shadowOpacity: 0.55,
+    shadowRadius: 8,
+    opacity: 0.9,
+  },
+  dot: {
+    position: "absolute",
+    backgroundColor: tokens.accentGlow,
+  },
+  glowDot: {
+    shadowColor: tokens.accent,
+    shadowOpacity: 1,
+    shadowRadius: 8,
+  },
+  centerGlow: {
+    position: "absolute",
+    backgroundColor: "rgba(245, 200, 66, 0.18)",
+    shadowColor: tokens.accent,
+    shadowOpacity: 1,
+    shadowRadius: 18,
+  },
+  centerCore: {
+    position: "absolute",
+    backgroundColor: tokens.accent,
+    shadowColor: tokens.accent,
+    shadowOpacity: 0.9,
+    shadowRadius: 10,
+  },
+});

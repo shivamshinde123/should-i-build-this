@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 type Props = {
   strengths: string[];
@@ -12,13 +12,13 @@ export function StrengthsVulnerabilities({ strengths, vulnerabilities }: Props) 
   return (
     <View style={styles.container}>
       <Column
-        title="STRENGTHS"
+        title="Strengths"
         items={strengths}
         icon="checkmark-circle"
         color={tokens.accent}
       />
       <Column
-        title="VULNERABILITIES"
+        title="Vulnerabilities"
         items={vulnerabilities}
         icon="warning"
         color={tokens.danger}
@@ -61,9 +61,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 10,
-    letterSpacing: 1.2,
+    ...typography.eyebrowStrong,
   },
   row: {
     flexDirection: "row",
@@ -73,8 +71,6 @@ const styles = StyleSheet.create({
   item: {
     flex: 1,
     color: tokens.inkMuted,
-    fontFamily: "Inter_400Regular",
-    fontSize: 11,
-    lineHeight: 15,
+    ...typography.bodyCompact,
   },
 });

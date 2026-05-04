@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 export type MarketBar = {
   label: string;
@@ -14,7 +14,7 @@ export function MarketSizeBars({ bars }: { bars: MarketBar[] }) {
       {bars.map((bar) => (
         <View key={bar.label}>
           <View style={styles.row}>
-            <Text style={styles.label} numberOfLines={2}>{bar.label}</Text>
+            <Text style={styles.label}>{bar.label}</Text>
             <Text style={styles.value}>{bar.value}</Text>
           </View>
           <View style={styles.track}>
@@ -39,16 +39,19 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
+    minWidth: 0,
+    flexShrink: 1,
     color: tokens.inkMuted,
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 9,
-    letterSpacing: 0.8,
+    ...typography.eyebrowStrong,
+    letterSpacing: 0.7,
   },
   value: {
+    flexShrink: 0,
     color: tokens.accent,
-    fontFamily: "SpaceMono_700Bold",
+    ...typography.titleMono,
     fontSize: 11,
-    letterSpacing: 0.6,
+    lineHeight: 16,
+    letterSpacing: 0.4,
   },
   track: {
     height: 12,

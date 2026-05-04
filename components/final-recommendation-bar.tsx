@@ -1,45 +1,30 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
-
-import { PrimaryButton } from "@/components/primary-button";
+import { tokens, typography } from "@/constants/theme";
 
 type Props = {
   primaryLabel: string;
   secondaryLabel?: string;
-  onPrimary?: () => void;
-  onSecondary?: () => void;
 };
 
 export function FinalRecommendationBar({
   primaryLabel,
   secondaryLabel,
-  onPrimary,
-  onSecondary,
 }: Props) {
   return (
     <View style={styles.container}>
-      <Text style={styles.caption}>FINAL RECOMMENDATION</Text>
-      <View style={styles.row}>
+      <Text style={styles.caption}>Final recommendation</Text>
+      <View style={styles.card}>
+        <View style={styles.copyBlock}>
+          <Text style={styles.label}>Primary recommendation</Text>
+          <Text style={styles.body}>{primaryLabel}</Text>
+        </View>
         {secondaryLabel ? (
-          <View style={styles.flex}>
-            <PrimaryButton
-              label={secondaryLabel}
-              variant="outline"
-              onPress={onSecondary}
-              disabled={!onSecondary}
-            />
+          <View style={styles.copyBlock}>
+            <Text style={styles.label}>Alternative path</Text>
+            <Text style={styles.body}>{secondaryLabel}</Text>
           </View>
         ) : null}
-        <View style={styles.flex}>
-          <PrimaryButton
-            label={primaryLabel}
-            variant="solid"
-            icon="rocket"
-            onPress={onPrimary}
-            disabled={!onPrimary}
-          />
-        </View>
       </View>
     </View>
   );
@@ -57,15 +42,25 @@ const styles = StyleSheet.create({
   caption: {
     marginBottom: 8,
     color: tokens.inkFaint,
-    fontFamily: "SpaceMono_400Regular",
-    fontSize: 9,
-    letterSpacing: 1.2,
+    ...typography.eyebrow,
   },
-  row: {
-    flexDirection: "row",
-    gap: 8,
+  card: {
+    gap: 14,
+    borderWidth: 1,
+    borderColor: tokens.border,
+    backgroundColor: tokens.surface,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
   },
-  flex: {
-    flex: 1,
+  copyBlock: {
+    gap: 6,
+  },
+  label: {
+    color: tokens.accent,
+    ...typography.titleMono,
+  },
+  body: {
+    color: tokens.ink,
+    ...typography.body,
   },
 });

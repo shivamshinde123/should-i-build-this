@@ -1,5 +1,11 @@
 export type Severity = "warn" | "info";
 
+export type SourceCitation = {
+  title: string;
+  url: string;
+  citedText?: string;
+};
+
 export type AnalysisPayload = {
   builder_view: {
     overall_score: number;
@@ -55,4 +61,5 @@ export type AnalyzeResponse = {
   slug: string;
   report: AnalysisPayload;
   model: string;
+  sources: SourceCitation[];
 };

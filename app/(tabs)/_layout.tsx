@@ -3,7 +3,7 @@ import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -26,16 +26,15 @@ export default function TabLayout() {
           paddingBottom: tabBarPaddingBottom,
         },
         tabBarLabelStyle: {
-          fontSize: 9,
-          letterSpacing: 1.5,
-          fontFamily: "SpaceMono_700Bold",
+          ...typography.eyebrowStrong,
+          letterSpacing: 1.2,
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "VALIDATE",
+          title: "Validate",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="checkmark-circle-outline" size={size ?? 22} color={color} />
           ),
@@ -44,7 +43,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="reports"
         options={{
-          title: "REPORTS",
+          title: "Reports",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="bar-chart-outline" size={size ?? 22} color={color} />
           ),
@@ -53,7 +52,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "PROFILE",
+          title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-circle-outline" size={size ?? 22} color={color} />
           ),

@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState, type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 type Props = {
   number: string;
@@ -68,22 +68,22 @@ const styles = StyleSheet.create({
   },
   left: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
+    alignItems: "flex-start",
+    gap: 10,
     flexShrink: 1,
+    flex: 1,
+    minWidth: 0,
   },
   number: {
     color: tokens.accent,
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 11,
-    letterSpacing: 1.2,
+    ...typography.eyebrowStrong,
+    paddingTop: 1,
   },
   title: {
     color: tokens.ink,
-    fontFamily: "Inter_500Medium",
-    fontSize: 11,
-    letterSpacing: 1.2,
+    ...typography.titleSans,
     flexShrink: 1,
+    minWidth: 0,
   },
   content: {
     borderTopWidth: 1,

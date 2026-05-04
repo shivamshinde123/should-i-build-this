@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
-import { tokens } from "@/constants/theme";
+import { tokens, typography } from "@/constants/theme";
 
 type Props = {
   number: string;
@@ -31,7 +31,7 @@ export function SectionCard({
           <Text style={styles.title}>{title}</Text>
         </View>
         {required ? (
-          <Text style={styles.required}>REQUIRED</Text>
+          <Text style={styles.required}>Required</Text>
         ) : null}
       </View>
       <TextInput
@@ -58,12 +58,15 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 12,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
+    gap: 12,
   },
   titleRow: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 12,
     flexShrink: 1,
   },
@@ -74,31 +77,27 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: tokens.bg,
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 10,
+    ...typography.eyebrowStrong,
     letterSpacing: 0.8,
   },
   title: {
+    flex: 1,
+    minWidth: 0,
     color: tokens.ink,
-    fontFamily: "SpaceMono_700Bold",
-    fontSize: 11,
-    letterSpacing: 1.2,
+    ...typography.titleSans,
     flexShrink: 1,
   },
   required: {
+    flexShrink: 0,
     color: tokens.inkDim,
-    fontFamily: "SpaceMono_400Regular",
-    fontSize: 9,
-    letterSpacing: 1.2,
+    ...typography.eyebrow,
   },
   input: {
     backgroundColor: tokens.bg,
     paddingHorizontal: 12,
     paddingVertical: 12,
     color: tokens.ink,
-    fontFamily: "SpaceMono_400Regular",
-    fontSize: 13,
-    lineHeight: 20,
+    ...typography.body,
     textAlignVertical: "top",
     borderWidth: 1,
     borderColor: tokens.hairline,
