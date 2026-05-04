@@ -23,14 +23,7 @@ Happy path:
 - Expo owner: `shivamshinde1234`
 - Preview build profile: `preview`
 - iOS simulator build profile: `preview-simulator`
-
-## Current remote build status
-
-- iOS simulator preview build finished successfully
-- iOS simulator build id: `490fd52b-c4bd-4399-9ce3-7e5ad05a9e14`
-- Android preview build id: `cec85f57-2345-47ef-b96a-e5e5d4e05cdd`
-- Android preview build status should be checked with `npx eas build:list`
-- iOS device preview build is not yet available from this repo alone because Apple internal-distribution credentials are still missing in EAS
+- Production build profile: `production`
 
 ## Build profiles
 
@@ -52,7 +45,6 @@ npm run eas:build:android:preview
 - output: internal distribution build
 - intended for: ad hoc internal install
 - requirement: Apple Developer account and registered devices
-- current blocker: EAS could not find suitable iOS credentials in non-interactive mode
 
 Command:
 
@@ -70,6 +62,32 @@ Command:
 
 ```bash
 npm run eas:build:ios:simulator
+```
+
+## Production build commands
+
+Production artifacts are required before submission to TestFlight or Google Play internal testing.
+
+### Android production
+
+- profile: `production`
+- output: Play Store artifact for submission
+
+Command:
+
+```bash
+npm run eas:build:android:production
+```
+
+### iOS production
+
+- profile: `production`
+- output: App Store Connect artifact for TestFlight submission
+
+Command:
+
+```bash
+npm run eas:build:ios:production
 ```
 
 ## Local smoke test steps
@@ -117,36 +135,47 @@ Verify the same happy path as Android.
 
 ### Google Play internal
 
-Build a store-ready Android binary with `production`, then submit it:
+1. Build the production Android artifact:
+
+```bash
+npm run eas:build:android:production
+```
+
+2. Submit the latest production Android build:
 
 ```bash
 npm run eas:submit:android:internal
 ```
 
-Requires a configured Google Play service account and Play Console app.
+Requires:
+
+- a configured Google Play service account
+- a Play Console app
+- at least one completed Android `production` build in EAS
 
 ### TestFlight
 
-Submit an iOS store build:
+1. Build the production iOS artifact:
+
+```bash
+npm run eas:build:ios:production
+```
+
+2. Submit the latest production iOS build:
 
 ```bash
 npm run eas:submit:ios:testflight
 ```
 
-Requires Apple Developer / App Store Connect credentials and app metadata.
+Requires:
 
-## Environment limitations on this workstation
-
-At the time this runbook was created:
-
-- Windows host cannot run an iOS Simulator
-- `adb` was not available on PATH
-- `emulator` was not available on PATH
-
-That means EAS configuration can be completed here, but full iOS simulator verification and local Android emulator verification require additional machine setup.
+- Apple Developer / App Store Connect credentials
+- app metadata configured in App Store Connect
+- at least one completed iOS `production` build in EAS
 
 ## Remaining external blockers
 
-- Android emulator smoke test requires local Android SDK tooling on PATH
+- Android emulator smoke test requires local Android SDK tooling, including `adb` and `emulator`, to be installed and available
 - iOS simulator smoke test requires a macOS machine
-- iOS internal device preview requires Apple signing credentials to be configured in EAS interactively
+- iOS internal device preview requires Apple signing credentials to be configured in EAS
+- Store submission requires successful `production` builds before running the submit commands

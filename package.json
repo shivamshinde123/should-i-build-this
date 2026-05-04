@@ -10,10 +10,12 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "eas:build:android:preview": "npx eas build --platform android --profile preview",
+    "eas:build:android:production": "npx eas build --platform android --profile production",
     "eas:build:ios:preview": "npx eas build --platform ios --profile preview",
+    "eas:build:ios:production": "npx eas build --platform ios --profile production",
     "eas:build:ios:simulator": "npx eas build --platform ios --profile preview-simulator",
-    "eas:submit:android:internal": "npx eas submit --platform android --profile production",
-    "eas:submit:ios:testflight": "npx eas submit --platform ios --profile production"
+    "eas:submit:android:internal": "npx eas submit --platform android --profile production --latest",
+    "eas:submit:ios:testflight": "npx eas submit --platform ios --profile production --latest"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
