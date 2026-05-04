@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.shivamshinde.shouldibuildthis"
+      "bundleIdentifier": "com.shivamshinde.shouldibuildthis",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.shivamshinde.shouldibuildthis",
@@ -49,7 +52,12 @@
     "extra": {
       "supabaseUrl": "https://hexcsdactbhdkcmdrnzj.supabase.co",
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhleGNzZGFjdGJoZGtjbWRybnpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTAzMzcsImV4cCI6MjA5MzM4NjMzN30.0983qPQ-aKankekobLuDG3o5SGEJZdXBkzkOrSOduP0",
-      "publicReportBaseUrl": "https://should-i-build-this.vercel.app"
-    }
+      "publicReportBaseUrl": "https://should-i-build-this.vercel.app",
+      "router": {},
+      "eas": {
+        "projectId": "7426fb94-434a-4f99-b733-ad191d0f2756"
+      }
+    },
+    "owner": "shivamshinde1234"
   }
 }
