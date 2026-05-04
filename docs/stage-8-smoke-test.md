@@ -141,10 +141,16 @@ Verify the same happy path as Android.
 npm run eas:build:android:production
 ```
 
-2. Submit the latest production Android build:
+2. Find the build ID for the completed Android production build:
 
 ```bash
-npm run eas:submit:android:internal
+npx eas build:list --platform android --status finished
+```
+
+3. Submit that exact Android build ID:
+
+```bash
+npm run eas:submit:android:internal -- --id <ANDROID_BUILD_ID>
 ```
 
 Requires:
@@ -152,6 +158,7 @@ Requires:
 - a configured Google Play service account
 - a Play Console app
 - at least one completed Android `production` build in EAS
+- the explicit EAS build ID for the artifact you want to submit
 
 ### TestFlight
 
@@ -161,10 +168,16 @@ Requires:
 npm run eas:build:ios:production
 ```
 
-2. Submit the latest production iOS build:
+2. Find the build ID for the completed iOS production build:
 
 ```bash
-npm run eas:submit:ios:testflight
+npx eas build:list --platform ios --status finished
+```
+
+3. Submit that exact iOS build ID:
+
+```bash
+npm run eas:submit:ios:testflight -- --id <IOS_BUILD_ID>
 ```
 
 Requires:
@@ -172,10 +185,11 @@ Requires:
 - Apple Developer / App Store Connect credentials
 - app metadata configured in App Store Connect
 - at least one completed iOS `production` build in EAS
+- the explicit EAS build ID for the artifact you want to submit
 
 ## Remaining external blockers
 
 - Android emulator smoke test requires local Android SDK tooling, including `adb` and `emulator`, to be installed and available
 - iOS simulator smoke test requires a macOS machine
 - iOS internal device preview requires Apple signing credentials to be configured in EAS
-- Store submission requires successful `production` builds before running the submit commands
+- Store submission requires successful `production` builds and explicit EAS build IDs before running the submit commands
