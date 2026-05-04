@@ -220,7 +220,7 @@ Deno.serve(async (req) => {
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(stripJsonFences(responseText));
+    parsed = parseModelJson(responseText);
   } catch {
     return jsonResponse(
       {
@@ -260,6 +260,7 @@ Deno.serve(async (req) => {
     background_text: backgroundText || null,
     builder_view: analysis.builder_view,
     investor_view: analysis.investor_view,
+    shared_view: analysis.shared,
     model: ANTHROPIC_MODEL,
     user_id: userId,
   };
@@ -301,6 +302,22 @@ function extractTextFromAnthropicResponse(payload: any): string {
 
 function stripJsonFences(input: string): string {
   return input.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+}
+
+function parseModelJson(input: string): unknown {
+  const cleaned = stripJsonFences(input);
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const start = cleaned.indexOf("{");
+    const end = cleaned.lastIndexOf("}");
+    if (start === -1 || end === -1 || end <= start) {
+      throw new Error("No JSON object found.");
+    }
+
+    return JSON.parse(cleaned.slice(start, end + 1));
+  }
 }
 
 function normalizeAnalysisPayload(payload: unknown): unknown {
@@ -406,6 +423,7 @@ async function insertReportWithUniqueSlug(
     background_text: string | null;
     builder_view: AnalysisPayload["builder_view"];
     investor_view: AnalysisPayload["investor_view"];
+    shared_view: AnalysisPayload["shared"];
     model: string;
     user_id: string | null;
   }, "slug">,
