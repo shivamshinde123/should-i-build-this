@@ -62,7 +62,11 @@ export function ReportViewer({ report }: { report: PublicReport }) {
           </div>
 
           <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-            <div className="inline-flex w-full border border-border bg-background p-1 sm:w-auto">
+            <div
+              aria-label="Report view toggle"
+              className="inline-flex w-full border border-border bg-background p-1 sm:w-auto"
+              role="tablist"
+            >
               <ToggleButton
                 active={view === "builder"}
                 label="BUILDER VIEW"
@@ -247,8 +251,11 @@ function InvestorReport({
           </div>
 
           <div className="grid gap-4 px-5 py-5 sm:px-6">
-            {concerns.map((concern) => (
-              <article key={concern.title} className="border border-border bg-background px-5 py-5">
+            {concerns.map((concern, index) => (
+              <article
+                key={`${concern.title}-${index}`}
+                className="border border-border bg-background px-5 py-5"
+              >
                 <div className="flex items-center gap-3">
                   <span
                     className={`h-2.5 w-2.5 rounded-full ${
@@ -349,8 +356,8 @@ function ListBlock({
         {label}
       </p>
       <ul className="mt-4 space-y-3 text-sm leading-7 text-ink-muted">
-        {items.map((item) => (
-          <li key={item} className="flex gap-3">
+        {items.map((item, index) => (
+          <li key={`${label}-${index}`} className="flex gap-3">
             <span
               className={`mt-2 h-2 w-2 shrink-0 rounded-full ${
                 tone === "danger" ? "bg-danger" : "bg-accent"
@@ -384,8 +391,10 @@ function ToggleButton({
 }) {
   return (
     <button
+      aria-selected={active}
       type="button"
       onClick={onClick}
+      role="tab"
       className={`min-w-[150px] px-4 py-3 font-mono text-[11px] tracking-[0.22em] transition ${
         active
           ? "bg-accent text-background"
