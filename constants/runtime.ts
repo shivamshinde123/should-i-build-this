@@ -9,13 +9,19 @@ type ExtraConfig = {
 const extra = (Constants.expoConfig?.extra ?? {}) as ExtraConfig;
 
 export const runtimeConfig = {
-  supabaseUrl: extra.supabaseUrl ?? "https://hexcsdactbhdkcmdrnzj.supabase.co",
-  supabaseAnonKey:
-    extra.supabaseAnonKey
-    ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhleGNzZGFjdGJoZGtjbWRybnpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTAzMzcsImV4cCI6MjA5MzM4NjMzN30.0983qPQ-aKankekobLuDG3o5SGEJZdXBkzkOrSOduP0",
-  publicReportBaseUrl: extra.publicReportBaseUrl ?? "https://should-i-build-this.vercel.app",
+  supabaseUrl: requireExtraConfig("supabaseUrl", extra.supabaseUrl),
+  supabaseAnonKey: requireExtraConfig("supabaseAnonKey", extra.supabaseAnonKey),
+  publicReportBaseUrl: requireExtraConfig("publicReportBaseUrl", extra.publicReportBaseUrl),
 } as const;
 
 export function buildPublicReportUrl(slug: string): string {
   return `${runtimeConfig.publicReportBaseUrl.replace(/\/$/, "")}/r/${slug}`;
+}
+
+function requireExtraConfig(name: keyof ExtraConfig, value: string | undefined): string {
+  if (!value) {
+    throw new Error(`Missing Expo runtime config: ${name}`);
+  }
+
+  return value;
 }

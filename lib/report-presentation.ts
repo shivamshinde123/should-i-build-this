@@ -25,7 +25,7 @@ export function toBuilderMetrics(report: AnalysisPayload): MetricCardProps[] {
       label: "EST. EFFORT",
       value: builder.estimated_effort,
       valueColor: "ink",
-      subtitle: sanitizeReportText(builder.learning_value),
+      subtitle: summarizeEffort(builder.estimated_effort),
     },
     {
       label: "RISK LEVEL",
@@ -80,7 +80,7 @@ export function toMarketSizeBars(report: AnalysisPayload) {
   const market = report.investor_view.market_size_assessment;
   const parsed = [market.tam, market.sam, market.som].map(parseMagnitude);
 
-  let widths: number[] = [...DEFAULT_BAR_WIDTHS];
+  let widths: number[] = [0.34, 0.34, 0.34];
   if (parsed.every((value) => value !== null) && parsed[0] && parsed[0] > 0) {
     widths = parsed.map((value) => clamp01((value ?? 0) / parsed[0]));
   }
@@ -131,6 +131,12 @@ function summarizeDefensibility(value: string): string {
   if (upper.includes("MODERATE")) return "MODERATE";
   if (upper.includes("HIGH")) return "HIGH";
   return upper.slice(0, 18) || "UNCLEAR";
+}
+
+function summarizeEffort(value: AnalysisPayload["builder_view"]["estimated_effort"]): string {
+  if (value === "HIGH") return "HEAVY EXECUTION LOAD";
+  if (value === "MEDIUM") return "MODERATE BUILD SCOPE";
+  return "LEAN MVP FRIENDLY";
 }
 
 function compactMarketValue(primary: string, fallback: string): string {

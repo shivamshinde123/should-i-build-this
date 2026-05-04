@@ -25,8 +25,7 @@ export async function invokeAnalyze(
 
   if (!response.ok) {
     const errorBody = isAnalyzeErrorBody(json) ? json : null;
-    const detail = errorBody ? [errorBody.error, errorBody.detail].filter(Boolean).join(" ") : "";
-    throw new Error(detail || "Analysis request failed.");
+    throw new Error(getUserFacingAnalyzeError(errorBody));
   }
 
   if (!json || typeof json !== "object" || !("slug" in json) || !("report" in json)) {
@@ -38,4 +37,30 @@ export async function invokeAnalyze(
 
 function isAnalyzeErrorBody(value: unknown): value is AnalyzeErrorBody {
   return !!value && typeof value === "object" && ("error" in value || "detail" in value);
+}
+
+function getUserFacingAnalyzeError(errorBody: AnalyzeErrorBody | null): string {
+  const message = `${errorBody?.error ?? ""} ${errorBody?.detail ?? ""}`.toLowerCase();
+
+  if (message.includes("ideaText is required".toLowerCase())) {
+    return "Enter your idea before running the stress test.";
+  }
+
+  if (message.includes("invalid json")) {
+    return "The request payload was invalid. Try again.";
+  }
+
+  if (message.includes("anthropic")) {
+    return "The analysis engine had a temporary issue. Try again in a moment.";
+  }
+
+  if (message.includes("failed to save report")) {
+    return "The report was generated, but saving it failed. Try again.";
+  }
+
+  if (message.includes("missing required environment configuration")) {
+    return "The backend is not configured correctly right now.";
+  }
+
+  return "The stress test failed. Try again.";
 }

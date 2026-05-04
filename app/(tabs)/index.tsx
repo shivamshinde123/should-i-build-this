@@ -24,7 +24,7 @@ import { invokeAnalyze } from "@/lib/analyze-client";
 
 export default function ValidateScreen() {
   const router = useRouter();
-  const { clearSession, setSession } = useReportSession();
+  const { setSession } = useReportSession();
   const [concept, setConcept] = useState("");
   const [background, setBackground] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,6 @@ export default function ValidateScreen() {
 
     const controller = new AbortController();
     abortRef.current = controller;
-    clearSession();
     setError(null);
     setLoading(true);
 

@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
@@ -55,6 +55,7 @@ export default function ReportsScreen() {
   const handleCopyShareLink = async () => {
     await Clipboard.setStringAsync(session.shareUrl);
     setCopied(true);
+    AccessibilityInfo.announceForAccessibility("Share link copied to clipboard.");
     setTimeout(() => setCopied(false), 1800);
   };
 
@@ -83,7 +84,7 @@ export default function ReportsScreen() {
               <Pressable
                 onPress={handleCopyShareLink}
                 accessibilityRole="button"
-                accessibilityLabel="Copy share report link"
+                accessibilityLabel={copied ? "Share link copied" : "Copy share report link"}
                 style={({ pressed }) => [
                   styles.shareButton,
                   pressed ? styles.shareButtonPressed : null,
