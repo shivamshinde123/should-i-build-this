@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -14,28 +16,70 @@ import { AppHeader } from "@/components/app-header";
 import { LoadingView } from "@/components/loading-view";
 import { MarketSentimentCard } from "@/components/market-sentiment-card";
 import { NeuralEngineCard } from "@/components/neural-engine-card";
+import { useReportSession } from "@/components/report-session-provider";
 import { SectionCard } from "@/components/section-card";
 import { TerminalLogs } from "@/components/terminal-logs";
 import { tokens } from "@/constants/theme";
-import { Ionicons } from "@expo/vector-icons";
+import { invokeAnalyze } from "@/lib/analyze-client";
 
 export default function ValidateScreen() {
+  const router = useRouter();
+  const { setSession } = useReportSession();
   const [concept, setConcept] = useState("");
   const [background, setBackground] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const canSubmit = concept.trim().length > 0 && background.trim().length > 0;
 
-  const handleStressTestPress = () => {
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
+
+  const handleStressTestPress = async () => {
     if (!canSubmit) return;
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setError(null);
     setLoading(true);
+
+    try {
+      const response = await invokeAnalyze(
+        {
+          ideaText: concept.trim(),
+          backgroundText: background.trim(),
+        },
+        controller.signal,
+      );
+
+      setSession(response);
+      setLoading(false);
+      router.push("/reports");
+    } catch (requestError) {
+      if ((requestError as Error).name === "AbortError") {
+        return;
+      }
+
+      setLoading(false);
+      setError((requestError as Error).message || "Stress test failed. Try again.");
+    } finally {
+      abortRef.current = null;
+    }
+  };
+
+  const handleCancel = () => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setLoading(false);
   };
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
       <AppHeader />
       {loading ? (
-        <LoadingView onCancel={() => setLoading(false)} />
+        <LoadingView onCancel={handleCancel} />
       ) : (
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -94,8 +138,8 @@ export default function ValidateScreen() {
                   <View
                     style={[
                       styles.ctaButton,
-                      !canSubmit ? styles.ctaButtonDisabled : null,
                       pressed ? styles.ctaButtonPressed : null,
+                      !canSubmit ? styles.ctaButtonDisabled : null,
                     ]}
                   >
                     <Ionicons name="flash" size={16} color={tokens.bg} />
@@ -103,6 +147,8 @@ export default function ValidateScreen() {
                   </View>
                 )}
               </Pressable>
+
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
               <MarketSentimentCard />
 
@@ -189,5 +235,11 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_700Bold",
     fontSize: 12,
     letterSpacing: 0.8,
+  },
+  errorText: {
+    color: "#fca5a5",
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    lineHeight: 18,
   },
 });

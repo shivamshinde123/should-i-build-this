@@ -16,6 +16,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 
+import { ReportSessionProvider } from "@/components/report-session-provider";
 import { tokens } from "@/constants/theme";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -44,11 +45,13 @@ export default function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
-    <ThemeProvider value={DarkTheme}>
-      <Stack screenOptions={{ contentStyle: { backgroundColor: tokens.bg } }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar style="light" />
-    </ThemeProvider>
+    <ReportSessionProvider>
+      <ThemeProvider value={DarkTheme}>
+        <Stack screenOptions={{ contentStyle: { backgroundColor: tokens.bg } }}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+        <StatusBar style="light" />
+      </ThemeProvider>
+    </ReportSessionProvider>
   );
 }
