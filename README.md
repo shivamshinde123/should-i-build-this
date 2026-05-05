@@ -1,6 +1,6 @@
 # Should I Build This?
 
-Expo app that takes a project idea and founder background, sends it to a Supabase Edge Function, and returns a saved report with two views:
+Expo app that takes a startup idea plus founder background, sends it to a Supabase Edge Function backed by Anthropic, and returns a two-part report:
 
 - Builder View
 - Investor View
@@ -11,21 +11,35 @@ Expo app that takes a project idea and founder background, sends it to a Supabas
 - React Native + Expo Router
 - TypeScript
 - NativeWind
-- Supabase Postgres + Edge Functions
+- Supabase Postgres
+- Supabase Edge Functions
 - Anthropic Claude Sonnet 4
-- Next.js 16
 
-## 1. Install dependencies
+## Repo layout
 
-Root app:
+- `app/`: Expo Router screens
+- `components/`: UI building blocks and report session state
+- `constants/`: runtime config and theme tokens
+- `lib/`: API client and report shaping helpers
+- `supabase/functions/analyze/`: backend function that calls Anthropic and writes to Postgres
+- `docs/`: smoke test notes and design references
+
+## Prerequisites
+
+- Node.js 20+
+- npm
+- Expo Go or a local simulator/device
+- Supabase account if you want to run the app with your own backend
+- Anthropic API key if you want to run the app with your own backend
+- Supabase CLI if you want to deploy the Edge Function from this repo
+
+## Install
 
 ```bash
 npm install
 ```
 
-## 2. Run the mobile app
-
-Start Expo:
+## Run the app
 
 ```bash
 npm run start
@@ -41,121 +55,165 @@ npm run web
 
 Notes:
 
-- `npm run ios` requires macOS + Xcode
-- `npm run android` requires Android Studio, an emulator, and `adb`
-- `npm run web` is useful for debugging layout, but the main product is native
+- `npm run ios` requires macOS + Xcode.
+- `npm run android` requires Android Studio, an emulator, and `adb`.
+- `npm run web` works for layout/debugging, but this repo is primarily a native app.
 
-## 3. If you only want to run the current app
+## Two ways to run this repo
 
-The mobile app already has a Supabase URL, anon key, and public report base URL in [app.json](/d:/WPI%20Things/Should%20I%20Build%20This/app.json) under `expo.extra`.
+### Option 1: Run against the backend already checked into `app.json`
 
-That means you can run the app locally with:
+The app currently reads its public backend config from [app.json](/d:/WPI%20Things/Should%20I%20Build%20This/app.json), not from a root `.env` file.
+
+Right now that file already contains:
+
+- `expo.extra.supabaseUrl`
+- `expo.extra.supabaseAnonKey`
+
+So if you only want to boot the current app locally, this is enough:
 
 ```bash
 npm install
 npm run start
 ```
 
-without setting a root `.env` file.
+### Option 2: Run with your own credentials
 
-## 4. If you want your own backend
+If another developer wants to use their own Supabase project and their own Anthropic key, they need to configure both the backend and the mobile app.
 
-You need your own Supabase project, database schema, Edge Function secrets, and app config.
+## Backend setup with your own Supabase project
 
-### 5.1 Create a Supabase project
+### 1. Create a Supabase project
 
-Create a project in Supabase, then note:
+Create a new Supabase project and collect these values:
 
-- project URL
-- anon key
-- service-role key
+- Project URL
+- Project anon key
+- Project service role key
+- Project ref
 
-### 5.2 Create the `reports` table
+You will use:
 
-The app and viewer expect this schema:
+- the URL + anon key in the Expo app
+- the URL + service role key as Edge Function secrets
+
+### 2. Create the `reports` table
+
+This repo has a `supabase/` directory and function config, but it does not currently contain a SQL migration for the `reports` table. Create the table manually in the Supabase SQL editor, or add your own migration before running the app.
+
+Use this schema:
 
 ```sql
-create table reports (
+create extension if not exists pgcrypto;
+
+create table if not exists public.reports (
   id uuid primary key default gen_random_uuid(),
   slug text unique not null,
   idea_text text not null,
   background_text text,
   builder_view jsonb not null,
-  investor_view jsonb,
+  investor_view jsonb not null,
   model text not null,
   created_at timestamptz not null default now(),
-  user_id uuid references auth.users
+  user_id uuid references auth.users (id)
 );
 
-create index on reports (created_at desc);
+create index if not exists reports_created_at_idx
+  on public.reports (created_at desc);
 ```
 
 Notes:
 
-- `slug` is an 8-character lowercase alphanumeric ID
-- `user_id` is nullable in the current v1 flow
+- `slug` must be unique. The function generates an 8-character lowercase alphanumeric value.
+- `user_id` is optional in the current flow. The app does not require sign-in.
+- The current app only shows the most recent in-memory report session. It does not yet fetch historical reports from Supabase.
 
-### 4.3 Configure the Edge Function
+### 3. Deploy the `analyze` Edge Function
 
-The function is at [supabase/functions/analyze/index.ts](/d:/WPI%20Things/Should%20I%20Build%20This/supabase/functions/analyze/index.ts).
+The function lives at [supabase/functions/analyze/index.ts](/d:/WPI%20Things/Should%20I%20Build%20This/supabase/functions/analyze/index.ts).
 
-Current function config:
+The repo-level function config is in [supabase/config.toml](/d:/WPI%20Things/Should%20I%20Build%20This/supabase/config.toml):
 
 ```toml
 [functions.analyze]
 verify_jwt = false
 ```
 
-Required function secrets:
+That matches the current mobile client, which calls the function with the public anon key and does not require a signed-in user.
+
+If you are using the Supabase CLI, the typical flow is:
+
+```bash
+npx supabase login
+npx supabase link --project-ref <your-project-ref>
+npx supabase functions deploy analyze
+```
+
+### 4. Add required Edge Function secrets
+
+The function will fail at runtime unless these secrets are present:
 
 - `ANTHROPIC_API_KEY`
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-Those are required. Without them, `/analyze` will fail.
+You can set them in the Supabase dashboard or with the CLI:
 
-### 4.4 Add the Anthropic API key
-
-In Supabase project secrets, create:
-
-```text
-ANTHROPIC_API_KEY=<your Anthropic API key>
+```bash
+npx supabase secrets set ANTHROPIC_API_KEY=<your-anthropic-key>
+npx supabase secrets set SUPABASE_URL=<your-supabase-url>
+npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 ```
 
-Do not put the Anthropic key in the Expo app or in committed files.
+Important:
 
-### 4.5 Deploy the function
+- Do not put the Anthropic API key in the Expo app.
+- Do not commit the service role key anywhere in this repo.
+- The mobile app should only ever use the public anon key.
 
-Deploy the `analyze` function to your Supabase project.
+## Mobile app setup with your own Supabase credentials
 
-After deployment, the mobile app will call:
+The app reads runtime config from [constants/runtime.ts](/d:/WPI%20Things/Should%20I%20Build%20This/constants/runtime.ts), which pulls values from `expo.extra` in [app.json](/d:/WPI%20Things/Should%20I%20Build%20This/app.json).
 
-```text
-/functions/v1/analyze
+Update these fields in `app.json`:
+
+```json
+"extra": {
+  "supabaseUrl": "https://YOUR_PROJECT_REF.supabase.co",
+  "supabaseAnonKey": "YOUR_SUPABASE_ANON_KEY",
+  "router": {},
+  "eas": {
+    "projectId": "..."
+  }
+}
 ```
 
-### 4.6 Point the app at your project
-
-Update [app.json](/d:/WPI%20Things/Should%20I%20Build%20This/app.json) `expo.extra` values:
+Only these two app values are required for the current runtime:
 
 - `supabaseUrl`
 - `supabaseAnonKey`
 
-## 5. Happy path test
+After that, the app will send requests to:
 
-After the app is running:
+```text
+<supabaseUrl>/functions/v1/analyze
+```
 
-1. Open `VALIDATE`
-2. Enter the idea text
-3. Enter founder background
-4. Press `STRESS TEST THIS`
-5. Wait for the loading screen
-6. Confirm the report renders
-7. Switch between Builder and Investor views
+## Verification
 
-## 6. Useful commands
+After configuring your backend and updating `app.json`:
 
-Root:
+1. Start the app with `npm run start`.
+2. Open the `Validate` tab.
+3. Enter an idea.
+4. Enter founder background.
+5. Press `Stress test this`.
+6. Wait for the loading screen to finish.
+7. Confirm the report opens in the `Reports` tab.
+8. Switch between Builder View and Investor View.
+9. Confirm source citations render at the bottom when Anthropic web search returns them.
+
+## Useful commands
 
 ```bash
 npm run start
@@ -166,9 +224,9 @@ npm run typecheck
 npm run lint -- --no-cache
 ```
 
-## 7. EAS
+## EAS build commands
 
-The repo also includes [eas.json](/d:/WPI%20Things/Should%20I%20Build%20This/eas.json) and these scripts:
+This repo already includes [eas.json](/d:/WPI%20Things/Should%20I%20Build%20This/eas.json) and these scripts:
 
 ```bash
 npm run eas:build:android:preview
@@ -180,24 +238,37 @@ npm run eas:submit:android:internal
 npm run eas:submit:ios:testflight
 ```
 
-The detailed internal build flow is in [docs/stage-8-smoke-test.md](/d:/WPI%20Things/Should%20I%20Build%20This/docs/stage-8-smoke-test.md).
+If you build the app for your own backend, make sure `app.json` points at your own Supabase project before running EAS builds.
 
-## 8. Troubleshooting
+## Troubleshooting
 
-If the UI looks stale or wrong:
+If Expo serves stale assets:
 
 ```bash
 npx expo start -c
 ```
 
-If `/analyze` fails, check:
+If the app crashes immediately on startup:
 
-- Supabase function secrets
-- `ANTHROPIC_API_KEY`
-- app `supabaseUrl` / `supabaseAnonKey`
-- deployed function logs
+- Check that `expo.extra.supabaseUrl` exists in `app.json`.
+- Check that `expo.extra.supabaseAnonKey` exists in `app.json`.
 
-## References
+If the stress test request fails:
+
+- Confirm the `analyze` function is deployed.
+- Confirm `ANTHROPIC_API_KEY` is set in Supabase secrets.
+- Confirm `SUPABASE_URL` is set in Supabase secrets.
+- Confirm `SUPABASE_SERVICE_ROLE_KEY` is set in Supabase secrets.
+- Confirm the `reports` table exists.
+- Check the Supabase function logs for the `analyze` function.
+
+If report saving fails:
+
+- Check that the `reports.slug` unique constraint exists.
+- Check that `builder_view` and `investor_view` are `jsonb`.
+- Check that your service role key belongs to the same Supabase project as the deployed function.
+
+## Related docs
 
 - [CLAUDE.md](/d:/WPI%20Things/Should%20I%20Build%20This/CLAUDE.md)
 - [docs/stage-8-smoke-test.md](/d:/WPI%20Things/Should%20I%20Build%20This/docs/stage-8-smoke-test.md)
