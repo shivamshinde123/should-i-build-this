@@ -33,8 +33,3 @@ Expo app that takes a startup idea plus founder background, sends it to a Supaba
 - `lib/`: API client and report shaping helpers
 - `supabase/functions/analyze/`: backend function that calls Anthropic and writes to Postgres
 - `docs/`: smoke test notes and design references
-
-## Related docs
-
-- [CLAUDE.md](/d:/WPI%20Things/Should%20I%20Build%20This/CLAUDE.md)
-- [docs/stage-8-smoke-test.md](/d:/WPI%20Things/Should%20I%20Build%20This/docs/stage-8-smoke-test.md)
