@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Should I Build This? — a reality check for your next idea</title>
+<meta name="description" content="A mobile app that stress-tests a startup idea against your background and returns two reports: a Builder view and an Investor view, grounded in live web sources.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400&family=Space+Mono:wght@400;700&family=Inter:wght@400;900&display=swap" rel="stylesheet">
+<style>
+/* Design reference: Koto via Refero Styles — an obsidian gallery at midnight where a single yellow mark is the only warm light.
+   Near-black canvas, light condensed display type, a monospaced UI voice, hairline borders, no shadows.
+   The yellow mark is the app's own gold (#F5C842). */
+:root{--void:#060606;--graphite:#141414;--smoke:#202020;--iron:#595959;--ash:#989898;--silver:#b4b4b4;--white:#fff;--gold:#f5c842;--danger:#ff8a80;
+  --cond:"Barlow Condensed","Inter Tight",sans-serif;--mono:"Space Mono",ui-monospace,monospace}
+*{box-sizing:border-box;margin:0}
+html{color-scheme:dark}
+body{background:var(--void);color:var(--silver);font:400 14px/1.6 var(--mono);-webkit-font-smoothing:antialiased}
+a{color:var(--white)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.cap{font:400 11px var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--ash)}
+
+nav.top{border-bottom:1px solid var(--smoke)}
+nav.top .wrap{height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px;font:700 13px var(--mono);text-transform:uppercase;letter-spacing:.2em;color:var(--white);text-decoration:none}
+.logo b{width:26px;height:26px;border:1.5px solid var(--gold);color:var(--gold);display:grid;place-items:center;font-size:12px;letter-spacing:0}
+nav.top ul{display:flex;gap:26px;list-style:none;padding:0}
+nav.top ul a{font:400 12px var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--ash);text-decoration:none}
+nav.top ul a:hover{color:var(--white)}
+
+.btn{display:inline-flex;align-items:center;height:48px;padding:0 22px;border:1px solid var(--white);font:700 12px var(--mono);text-transform:uppercase;letter-spacing:.14em;text-decoration:none;color:var(--white)}
+.btn:hover{background:var(--white);color:var(--void)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--void)}
+.btn.gold:hover{filter:brightness(1.06)}
+
+header.hero{padding:96px 0 0}
+.hero-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:end}
+h1{font:300 clamp(64px,10vw,132px)/.88 var(--cond);text-transform:uppercase;letter-spacing:-.01em;color:var(--white)}
+h1 b{font-weight:400;color:var(--gold)}
+.lede{font-size:15px;color:var(--silver);max-width:460px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.ticker{margin-top:72px;border-block:1px solid var(--smoke);padding:14px 0;display:flex;gap:40px;overflow:hidden;white-space:nowrap;font:400 12px var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--iron)}
+.ticker span::before{content:"■ ";color:var(--gold)}
+
+section{padding:110px 0;border-bottom:1px solid var(--smoke)}
+h2{font:300 clamp(40px,5.6vw,72px)/.95 var(--cond);text-transform:uppercase;color:var(--white);max-width:16ch;margin:14px 0 20px}
+.sub{max-width:560px}
+
+/* screens */
+.screens{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px}
+.screens figure{border:1px solid var(--smoke);background:var(--graphite);padding:12px}
+.screens img{display:block;width:100%;height:auto}
+.screens figcaption{margin-top:10px}
+
+/* report toggle */
+.toggle{display:inline-flex;border:1px solid var(--smoke);margin-top:36px}
+.toggle button{all:unset;cursor:pointer;padding:12px 22px;font:700 12px var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--ash)}
+.toggle button[aria-selected=true]{background:var(--white);color:var(--void)}
+.toggle button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.report{margin-top:20px;border:1px solid var(--smoke)}
+.report[hidden]{display:none}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr)}
+.metric{padding:24px;border-right:1px solid var(--smoke)}
+.metric:last-child{border-right:0}
+.metric .v{font:900 34px/1.1 Inter,sans-serif;color:var(--white);margin-top:10px}
+.metric .v.gold{color:var(--gold)}
+.metric .v.warn{color:var(--danger)}
+.metric .v small{font:400 15px var(--mono);color:var(--ash)}
+.metric p{font-size:12px;color:var(--iron);margin-top:4px}
+.sections{border-top:1px solid var(--smoke)}
+.sec{display:grid;grid-template-columns:60px 1fr 1.2fr;gap:20px;padding:18px 24px;border-bottom:1px solid var(--smoke);align-items:baseline}
+.sec:last-child{border-bottom:0}
+.sec .n{color:var(--gold)}
+.sec b{font:700 13px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--white)}
+.sec p{font-size:13px}
+.bars{display:grid;gap:10px;padding:24px;border-top:1px solid var(--smoke)}
+.bar{display:grid;grid-template-columns:70px 1fr 70px;gap:14px;align-items:center;font-size:12px}
+.bar i{display:block;height:6px;background:var(--smoke)}
+.bar i b{display:block;height:100%;background:var(--gold)}
+.illus{padding:12px 24px;font-size:11px;color:var(--iron);border-top:1px solid var(--smoke)}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);margin-top:56px;border-top:1px solid var(--white)}
+.pipe div{padding:22px 22px 0 0}
+.pipe div + div{padding-left:22px;border-left:1px solid var(--smoke)}
+.pipe h3{font:400 28px/1 var(--cond);text-transform:uppercase;color:var(--white);margin:10px 0 8px}
+.pipe p{font-size:13px}
+
+.stack{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:48px;border:1px solid var(--smoke)}
+.stack div{padding:20px;border-right:1px solid var(--smoke)}
+.stack div:last-child{border-right:0}
+.stack b{display:block;color:var(--white);font-weight:400;margin-top:6px}
+
+.end{text-align:center;border-bottom:0}
+.end h2{margin:14px auto 30px}
+footer{border-top:1px solid var(--smoke);padding:24px 0;font-size:12px;color:var(--iron)}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.screens{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}.metric:nth-child(2){border-right:0}.metric:nth-child(-n+2){border-bottom:1px solid var(--smoke)}.sec{grid-template-columns:40px 1fr}.sec p{grid-column:2}.pipe,.stack{grid-template-columns:1fr 1fr}.pipe div:nth-child(3){padding-left:0;border-left:0}nav.top ul li:not(:last-child){display:none}}
+@media(max-width:560px){.pipe,.stack{grid-template-columns:1fr}.pipe div{padding-left:0!important;border-left:0!important}.stack div{border-right:0;border-bottom:1px solid var(--smoke)}section{padding:80px 0}}
+</style>
+</head>
+<body>
+<nav class="top" aria-label="Primary"><div class="wrap">
+  <a class="logo" href="#"><b aria-hidden="true">&gt;_</b>Should I Build This?</a>
+  <ul><li><a href="#reports">Reports</a></li><li><a href="#engine">Engine</a></li><li><a href="#stack">Stack</a></li><li><a href="https://github.com/shivamshinde123/should-i-build-this">GitHub</a></li></ul>
+</div></nav>
+
+<main>
+<header class="hero"><div class="wrap">
+  <div class="hero-grid">
+    <h1>Reality<br>check <b>incoming.</b></h1>
+    <div>
+      <p class="cap">Validation engine · Builder vs Investor</p>
+      <p class="lede" style="margin-top:14px">Describe a startup idea and your own background. Should I Build This? stress-tests it from two sides: whether you can and should build it, and whether anyone would fund it. Every claim is grounded in live web sources.</p>
+      <div class="row"><a class="btn gold" href="#reports">See a report</a><a class="btn" href="https://github.com/shivamshinde123/should-i-build-this">Source</a></div>
+    </div>
+  </div>
+  <div class="ticker" aria-hidden="true"><span>Overall score</span><span>Estimated effort</span><span>Risk level</span><span>MVP timeline</span><span>TAM · SAM · SOM</span><span>Defensibility</span><span>Critical concerns</span><span>Source citations</span></div>
+</div></header>
+
+<section id="reports"><div class="wrap">
+  <p class="cap">Two reports, one idea</p>
+  <h2>Would you build it? Would they fund it?</h2>
+  <p class="sub">The same analysis, read two ways. Switch views to see what each report contains.</p>
+  <div class="toggle" role="tablist" aria-label="Report view">
+    <button role="tab" id="t-b" aria-selected="true" aria-controls="p-b">Builder view</button><button role="tab" id="t-i" aria-selected="false" aria-controls="p-i" tabindex="-1">Investor view</button>
+  </div>
+
+  <div class="report" id="p-b" role="tabpanel" aria-labelledby="t-b">
+    <div class="metrics">
+      <div class="metric"><span class="cap">Overall score</span><div class="v gold">6.8<small>/10</small></div></div>
+      <div class="metric"><span class="cap">Est. effort</span><div class="v">HIGH</div><p>~1,200 engineering hours</p></div>
+      <div class="metric"><span class="cap">Risk level</span><div class="v warn">ELEVATED</div><p>Data consistency hazard</p></div>
+      <div class="metric"><span class="cap">MVP timeline</span><div class="v">6–8 WKS</div><p>To alpha release</p></div>
+    </div>
+    <div class="sections">
+      <div class="sec"><span class="n">01</span><b>Problem clarity</b><p>Summary, strengths, vulnerabilities and a clarity score.</p></div>
+      <div class="sec"><span class="n">02</span><b>Technical feasibility</b><p>Can it be built with what exists today, and by you?</p></div>
+      <div class="sec"><span class="n">03</span><b>Learning value</b><p>What you'd gain even if it never takes off.</p></div>
+      <div class="sec"><span class="n">04</span><b>Approaches to build</b><p>Concrete paths to a first version.</p></div>
+      <div class="sec"><span class="n">→</span><b>Final recommendation</b><p>A primary call and an alternative path, e.g. "Proceed with reduced scope".</p></div>
+    </div>
+    <p class="illus">Example values from the app's design mock.</p>
+  </div>
+
+  <div class="report" id="p-i" role="tabpanel" aria-labelledby="t-i" hidden>
+    <div class="metrics">
+      <div class="metric"><span class="cap">Investability</span><div class="v gold">6.5<small>/10</small></div></div>
+      <div class="metric"><span class="cap">Market size (TAM)</span><div class="v">$12B</div><p>Global logistics segment</p></div>
+      <div class="metric"><span class="cap">Defensibility</span><div class="v">LOW</div><p>Open-source threats</p></div>
+      <div class="metric"><span class="cap">Traction goal</span><div class="v">10 PILOTS</div><p>Next milestone</p></div>
+    </div>
+    <div class="bars" aria-label="Market size assessment">
+      <div class="bar"><span>TAM</span><i><b style="width:100%"></b></i><span>$12.0B</span></div>
+      <div class="bar"><span>SAM</span><i><b style="width:35%"></b></i><span>$4.2B</span></div>
+      <div class="bar"><span>SOM</span><i><b style="width:7%"></b></i><span>$850M</span></div>
+    </div>
+    <div class="sections">
+      <div class="sec"><span class="n">02</span><b>Defensibility moats</b><p>What would stop a well-funded team copying it.</p></div>
+      <div class="sec"><span class="n">03</span><b>Traction requirements</b><p>What you'd need to prove before raising.</p></div>
+      <div class="sec"><span class="n">04</span><b>Business model</b><p>Who pays, how, and how much.</p></div>
+      <div class="sec"><span class="n">⚠</span><b>Critical concerns</b><p>Each with a severity, such as low barrier to entry, regulatory risk or long sales cycles.</p></div>
+    </div>
+    <p class="illus">Example values from the app's design mock.</p>
+  </div>
+
+  <div class="screens">
+    <figure><img src="https://raw.githubusercontent.com/shivamshinde123/should-i-build-this/main/docs/readme/validate-screen.jpeg" alt="Validate screen: fields for the concept and founder background, and a Stress test this button" loading="lazy"><figcaption class="cap">01 · Validate</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/shivamshinde123/should-i-build-this/main/docs/readme/loading-screen.jpeg" alt="Loading screen: diagnostic pipeline and real-time validation logs while the report is generated" loading="lazy"><figcaption class="cap">02 · Synthesizing</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/shivamshinde123/should-i-build-this/main/docs/readme/builder-report.jpeg" alt="Builder report: overall score, effort, risk, MVP timeline and collapsible sections" loading="lazy"><figcaption class="cap">03 · Builder report</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/shivamshinde123/should-i-build-this/main/docs/readme/investor-report.jpeg" alt="Investor report: investability, market size, defensibility, traction goal and critical concerns" loading="lazy"><figcaption class="cap">04 · Investor report</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="engine"><div class="wrap">
+  <p class="cap">How a report is made</p>
+  <h2>From a paragraph to a verdict.</h2>
+  <div class="pipe">
+    <div><span class="cap">01</span><h3>Pitch it</h3><p>Write the concept and your founder background in the app. Both are required.</p></div>
+    <div><span class="cap">02</span><h3>Research it</h3><p>A Supabase Edge Function calls Claude with web search, up to five searches per report.</p></div>
+    <div><span class="cap">03</span><h3>Score it</h3><p>Claude returns one strict JSON payload holding both the Builder and Investor views.</p></div>
+    <div><span class="cap">04</span><h3>Keep it</h3><p>Reports are saved to Postgres with their source citations, ready in the Reports tab.</p></div>
+  </div>
+</div></section>
+
+<section id="stack"><div class="wrap">
+  <p class="cap">Stack</p>
+  <h2>Native app, serverless brain.</h2>
+  <div class="stack">
+    <div><span class="cap">App</span><b>Expo SDK 54 · React Native · Expo Router · NativeWind</b></div>
+    <div><span class="cap">Backend</span><b>Supabase Edge Functions · Postgres</b></div>
+    <div><span class="cap">Model</span><b>Anthropic Claude Sonnet 4 with web search</b></div>
+  </div>
+</div></section>
+
+<section class="end"><div class="wrap">
+  <p class="cap">Open source</p>
+  <h2>Stress test it before you spend a year on it.</h2>
+  <a class="btn gold" href="https://github.com/shivamshinde123/should-i-build-this">Get it on GitHub</a>
+</div></section>
+</main>
+
+<footer><div class="wrap"><span>Built by <a href="https://github.com/shivamshinde123">Shivam Shinde</a></span><span>Reports are AI guidance, not investment advice</span></div></footer>
+<script>
+const tabs=[...document.querySelectorAll('[role=tab]')];
+function pick(t){tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;document.getElementById(x.getAttribute('aria-controls')).hidden=!on});t.focus()}
+tabs.forEach((t,i)=>{t.addEventListener('click',()=>pick(t));t.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();pick(tabs[(i+1)%tabs.length])}})});
+</script>
+</body>
+</html>
